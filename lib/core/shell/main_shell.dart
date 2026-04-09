@@ -24,7 +24,18 @@ class MainShell extends ConsumerWidget {
     final name = userData.value?['name'] as String? ?? '';
     final avatarUrl = userData.value?['avatar_url'] as String?;
 
+    final isOrdersTab = location == AppRoutes.orders;
+    final isTasksTab = location == AppRoutes.tasks;
+
     return Scaffold(
+      floatingActionButton: role.canCreateOrders && (isOrdersTab || isTasksTab)
+          ? FloatingActionButton(
+              onPressed: () => isOrdersTab
+                  ? context.push(AppRoutes.orderCreate)
+                  : context.push('/tasks/create'),
+              child: const Icon(Icons.add),
+            )
+          : null,
       appBar: AppBar(
         title: Text(_pageTitle(location, l10n)),
         actions: [

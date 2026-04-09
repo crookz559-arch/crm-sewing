@@ -6,7 +6,11 @@ import '../../features/auth/presentation/screens/splash_screen.dart';
 import '../../features/settings/presentation/settings_screen.dart';
 import '../../features/profile/presentation/profile_screen.dart';
 import '../../features/users/presentation/users_screen.dart';
+import '../../features/orders/presentation/screens/orders_list_screen.dart';
+import '../../features/orders/presentation/screens/order_detail_screen.dart';
+import '../../features/orders/presentation/screens/order_form_screen.dart';
 import '../../shared/providers/auth_provider.dart';
+import '../../shared/models/user_role.dart';
 import '../shell/main_shell.dart';
 
 class AppRoutes {
@@ -54,7 +58,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: AppRoutes.login,
         builder: (_, __) => const LoginScreen(),
       ),
-      // Экраны без нижней навигации (поверх shell)
+      // Экраны без нижней навигации
       GoRoute(
         path: AppRoutes.profile,
         builder: (_, __) => const ProfileScreen(),
@@ -63,12 +67,26 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: AppRoutes.users,
         builder: (_, __) => const UsersScreen(),
       ),
+      GoRoute(
+        path: '/orders/:id',
+        builder: (_, state) =>
+            OrderDetailScreen(orderId: state.pathParameters['id']!),
+      ),
+      GoRoute(
+        path: '/orders/:id/edit',
+        builder: (_, state) =>
+            OrderFormScreen(orderId: state.pathParameters['id']),
+      ),
+      GoRoute(
+        path: AppRoutes.orderCreate,
+        builder: (_, __) => const OrderFormScreen(),
+      ),
       ShellRoute(
         builder: (context, state, child) => MainShell(child: child),
         routes: [
           GoRoute(
             path: AppRoutes.orders,
-            builder: (_, __) => const OrdersPlaceholder(),
+            builder: (_, __) => const OrdersListScreen(),
           ),
           GoRoute(
             path: AppRoutes.tasks,
