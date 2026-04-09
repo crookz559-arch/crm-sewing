@@ -26,13 +26,21 @@ class MainShell extends ConsumerWidget {
 
     final isOrdersTab = location == AppRoutes.orders;
     final isTasksTab = location == AppRoutes.tasks;
+    final isDiaryTab = location == AppRoutes.diary;
+
+    VoidCallback? fabAction;
+    if (isOrdersTab && role.canCreateOrders) {
+      fabAction = () => context.push(AppRoutes.orderCreate);
+    } else if (isTasksTab && role.canCreateOrders) {
+      fabAction = () => context.push('/tasks/create');
+    } else if (isDiaryTab) {
+      fabAction = () => context.push('/diary/create');
+    }
 
     return Scaffold(
-      floatingActionButton: role.canCreateOrders && (isOrdersTab || isTasksTab)
+      floatingActionButton: fabAction != null
           ? FloatingActionButton(
-              onPressed: () => isOrdersTab
-                  ? context.push(AppRoutes.orderCreate)
-                  : context.push('/tasks/create'),
+              onPressed: fabAction,
               child: const Icon(Icons.add),
             )
           : null,

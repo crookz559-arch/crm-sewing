@@ -12,6 +12,12 @@ import '../../features/orders/presentation/screens/order_form_screen.dart';
 import '../../features/clients/presentation/screens/clients_list_screen.dart';
 import '../../features/clients/presentation/screens/client_detail_screen.dart';
 import '../../features/clients/presentation/screens/client_form_screen.dart';
+import '../../features/tasks/presentation/screens/tasks_list_screen.dart';
+import '../../features/tasks/presentation/screens/task_detail_screen.dart';
+import '../../features/tasks/presentation/screens/task_form_screen.dart';
+import '../../features/diary/presentation/screens/diary_list_screen.dart';
+import '../../features/diary/presentation/screens/diary_detail_screen.dart';
+import '../../features/diary/presentation/screens/diary_entry_form_screen.dart';
 import '../../shared/providers/auth_provider.dart';
 import '../../shared/models/user_role.dart';
 import '../shell/main_shell.dart';
@@ -89,6 +95,34 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (_, __) => const ClientFormScreen(),
       ),
       GoRoute(
+        path: '/tasks/create',
+        builder: (_, __) => const TaskFormScreen(),
+      ),
+      GoRoute(
+        path: '/tasks/:id',
+        builder: (_, state) =>
+            TaskDetailScreen(taskId: state.pathParameters['id']!),
+      ),
+      GoRoute(
+        path: '/tasks/:id/edit',
+        builder: (_, state) =>
+            TaskFormScreen(taskId: state.pathParameters['id']),
+      ),
+      GoRoute(
+        path: '/diary/create',
+        builder: (_, __) => const DiaryEntryFormScreen(),
+      ),
+      GoRoute(
+        path: '/diary/:id',
+        builder: (_, state) =>
+            DiaryDetailScreen(entryId: state.pathParameters['id']!),
+      ),
+      GoRoute(
+        path: '/diary/:id/edit',
+        builder: (_, state) =>
+            DiaryEntryFormScreen(entryId: state.pathParameters['id']),
+      ),
+      GoRoute(
         path: '/clients/:id',
         builder: (_, state) =>
             ClientDetailScreen(clientId: state.pathParameters['id']!),
@@ -107,7 +141,7 @@ final routerProvider = Provider<GoRouter>((ref) {
           ),
           GoRoute(
             path: AppRoutes.tasks,
-            builder: (_, __) => const TasksPlaceholder(),
+            builder: (_, __) => const TasksListScreen(),
           ),
           GoRoute(
             path: AppRoutes.clients,
@@ -119,7 +153,7 @@ final routerProvider = Provider<GoRouter>((ref) {
           ),
           GoRoute(
             path: AppRoutes.diary,
-            builder: (_, __) => const DiaryPlaceholder(),
+            builder: (_, __) => const DiaryListScreen(),
           ),
           GoRoute(
             path: AppRoutes.analytics,

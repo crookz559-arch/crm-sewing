@@ -371,4 +371,22 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get settingsThemeSystem => 'Системная';
+
+  @override
+  String get all => 'Все';
+
+  @override
+  String get onlyMine => 'Мои';
+
+  @override
+  String get taskTitle => 'Название';
+
+  @override
+  String get diaryApproved => 'Утверждено';
+
+  @override
+  String get diaryPending => 'Ожидает';
+
+  @override
+  String get diaryApproveSalary => 'Утвердить ЗП';
 }

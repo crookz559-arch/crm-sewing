@@ -819,6 +819,13 @@ abstract class AppLocalizations {
   /// In ru, this message translates to:
   /// **'Системная'**
   String get settingsThemeSystem;
+
+  String get all;
+  String get onlyMine;
+  String get taskTitle;
+  String get diaryApproved;
+  String get diaryPending;
+  String get diaryApproveSalary;
 }
 
 class _AppLocalizationsDelegate

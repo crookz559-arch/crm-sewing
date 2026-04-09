@@ -371,4 +371,22 @@ class AppLocalizationsUz extends AppLocalizations {
 
   @override
   String get settingsThemeSystem => 'Tizim';
+
+  @override
+  String get all => 'Barchasi';
+
+  @override
+  String get onlyMine => 'Mening';
+
+  @override
+  String get taskTitle => 'Sarlavha';
+
+  @override
+  String get diaryApproved => 'Tasdiqlangan';
+
+  @override
+  String get diaryPending => 'Kutilmoqda';
+
+  @override
+  String get diaryApproveSalary => 'Maoshni tasdiqlash';
 }

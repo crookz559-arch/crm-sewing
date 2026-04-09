@@ -19,6 +19,8 @@
   "submit": "Yuborish",
   "export": "Eksport",
   "noData": "Ma'lumot yo'q",
+  "all": "Barchasi",
+  "onlyMine": "Mening",
   "error": "Xato",
   "success": "Muvaffaqiyatli",
   "required": "Majburiy maydon",
@@ -71,6 +73,7 @@
 
   "tasksTitle": "Vazifalar",
   "taskNew": "Yangi vazifa",
+  "taskTitle": "Sarlavha",
   "taskAssignee": "Ijrochi",
   "taskDeadline": "Muddat",
   "taskStatus": "Holat",
@@ -105,6 +108,9 @@
   "diaryQuantity": "Miqdori",
   "diaryPhoto": "Rasm",
   "diarySalary": "Maosh (rubl)",
+  "diaryApproved": "Tasdiqlangan",
+  "diaryPending": "Kutilmoqda",
+  "diaryApproveSalary": "Maoshni tasdiqlash",
 
   "analyticsTitle": "Tahlil",
   "planTitle": "Reja / Fakt",

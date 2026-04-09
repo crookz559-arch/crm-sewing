@@ -19,6 +19,8 @@
   "submit": "Отправить",
   "export": "Экспорт",
   "noData": "Данных нет",
+  "all": "Все",
+  "onlyMine": "Мои",
   "error": "Ошибка",
   "success": "Успешно",
   "required": "Обязательное поле",
@@ -71,6 +73,7 @@
 
   "tasksTitle": "Задачи",
   "taskNew": "Новая задача",
+  "taskTitle": "Название",
   "taskAssignee": "Исполнитель",
   "taskDeadline": "Срок",
   "taskStatus": "Статус",
@@ -105,6 +108,9 @@
   "diaryQuantity": "Количество",
   "diaryPhoto": "Фото",
   "diarySalary": "ЗП (руб.)",
+  "diaryApproved": "Утверждено",
+  "diaryPending": "Ожидает",
+  "diaryApproveSalary": "Утвердить ЗП",
 
   "analyticsTitle": "Аналитика",
   "planTitle": "План / Факт",

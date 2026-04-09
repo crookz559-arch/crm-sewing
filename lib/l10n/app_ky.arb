@@ -19,6 +19,8 @@
   "submit": "Жөнөтүү",
   "export": "Экспорт",
   "noData": "Маалымат жок",
+  "all": "Баары",
+  "onlyMine": "Менин",
   "error": "Ката",
   "success": "Ийгиликтүү",
   "required": "Милдеттүү талаа",
@@ -71,6 +73,7 @@
 
   "tasksTitle": "Тапшырмалар",
   "taskNew": "Жаңы тапшырма",
+  "taskTitle": "Аталышы",
   "taskAssignee": "Аткаруучу",
   "taskDeadline": "Мөөнөт",
   "taskStatus": "Абал",
@@ -105,6 +108,9 @@
   "diaryQuantity": "Саны",
   "diaryPhoto": "Сүрөт",
   "diarySalary": "Эмгек акы (руб)",
+  "diaryApproved": "Бекитилген",
+  "diaryPending": "Күтүүдө",
+  "diaryApproveSalary": "Эмгек акыны бекитүү",
 
   "analyticsTitle": "Аналитика",
   "planTitle": "План / Факт",

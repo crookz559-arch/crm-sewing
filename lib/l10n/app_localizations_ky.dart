@@ -371,4 +371,22 @@ class AppLocalizationsKy extends AppLocalizations {
 
   @override
   String get settingsThemeSystem => 'Тутумдук';
+
+  @override
+  String get all => 'Баары';
+
+  @override
+  String get onlyMine => 'Менин';
+
+  @override
+  String get taskTitle => 'Аталышы';
+
+  @override
+  String get diaryApproved => 'Бекитилген';
+
+  @override
+  String get diaryPending => 'Күтүүдө';
+
+  @override
+  String get diaryApproveSalary => 'Эмгек акыны бекитүү';
 }
