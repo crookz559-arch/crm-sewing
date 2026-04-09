@@ -389,4 +389,10 @@ class AppLocalizationsKy extends AppLocalizations {
 
   @override
   String get diaryApproveSalary => 'Эмгек акыны бекитүү';
+
+  @override
+  String get notifTitle => 'Билдирүүлөр';
+
+  @override
+  String get notifMarkAllRead => 'Баарын окулган деп белгилөө';
 }

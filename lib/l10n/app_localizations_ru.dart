@@ -389,4 +389,10 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get diaryApproveSalary => 'Утвердить ЗП';
+
+  @override
+  String get notifTitle => 'Уведомления';
+
+  @override
+  String get notifMarkAllRead => 'Прочитать все';
 }

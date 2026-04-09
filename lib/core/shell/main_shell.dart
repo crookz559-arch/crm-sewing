@@ -5,6 +5,7 @@ import '../../shared/models/user_role.dart';
 import '../../shared/providers/auth_provider.dart';
 import '../../core/theme/app_colors.dart';
 import '../router/app_router.dart';
+import '../../features/notifications/presentation/notifications_screen.dart';
 import 'package:crm_sewing/l10n/app_localizations.dart';
 
 class MainShell extends ConsumerWidget {
@@ -47,6 +48,43 @@ class MainShell extends ConsumerWidget {
       appBar: AppBar(
         title: Text(_pageTitle(location, l10n)),
         actions: [
+          // Уведомления с бейджем
+          Consumer(
+            builder: (context, ref, _) {
+              final count = ref.watch(unreadCountProvider);
+              return Stack(
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.notifications_outlined),
+                    onPressed: () =>
+                        context.push(AppRoutes.notifications),
+                  ),
+                  if (count > 0)
+                    Positioned(
+                      right: 6,
+                      top: 6,
+                      child: Container(
+                        padding: const EdgeInsets.all(3),
+                        decoration: const BoxDecoration(
+                          color: Colors.red,
+                          shape: BoxShape.circle,
+                        ),
+                        constraints: const BoxConstraints(
+                            minWidth: 16, minHeight: 16),
+                        child: Text(
+                          count > 99 ? '99+' : '$count',
+                          style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 9,
+                              fontWeight: FontWeight.bold),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ),
+                ],
+              );
+            },
+          ),
           // Сотрудники — только директор и ГМ
           if (role.canViewAnalytics)
             IconButton(

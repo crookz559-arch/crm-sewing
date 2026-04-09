@@ -125,6 +125,8 @@
   "chatInputHint": "Сообщение...",
   "chatSend": "Отправить",
 
+  "notifTitle": "Уведомления",
+  "notifMarkAllRead": "Прочитать все",
   "notifOrderReady": "Заказ готов",
   "notifOrderReadyBody": "Заказ #{id} готов. Не забудьте оформить документы.",
   "notifDeadlineSoon": "Срок заказа истекает",

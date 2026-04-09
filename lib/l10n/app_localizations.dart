@@ -826,6 +826,8 @@ abstract class AppLocalizations {
   String get diaryApproved;
   String get diaryPending;
   String get diaryApproveSalary;
+  String get notifTitle;
+  String get notifMarkAllRead;
 }
 
 class _AppLocalizationsDelegate

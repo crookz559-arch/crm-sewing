@@ -125,6 +125,8 @@
   "chatInputHint": "Билдирүү...",
   "chatSend": "Жөнөтүү",
 
+  "notifTitle": "Билдирүүлөр",
+  "notifMarkAllRead": "Баарын окулган деп белгилөө",
   "notifOrderReady": "Заказ даяр",
   "notifOrderReadyBody": "#{id} заказ даяр. Документтерди тариздеңиз.",
   "notifDeadlineSoon": "Заказдын мөөнөтү бүтүп жатат",

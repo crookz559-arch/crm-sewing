@@ -18,6 +18,9 @@ import '../../features/tasks/presentation/screens/task_form_screen.dart';
 import '../../features/diary/presentation/screens/diary_list_screen.dart';
 import '../../features/diary/presentation/screens/diary_detail_screen.dart';
 import '../../features/diary/presentation/screens/diary_entry_form_screen.dart';
+import '../../features/couriers/presentation/screens/couriers_list_screen.dart';
+import '../../features/chat/presentation/chat_screen.dart';
+import '../../features/notifications/presentation/notifications_screen.dart';
 import '../../shared/providers/auth_provider.dart';
 import '../../shared/models/user_role.dart';
 import '../shell/main_shell.dart';
@@ -34,6 +37,7 @@ class AppRoutes {
   static const clientDetail = '/clients/:id';
   static const couriers = '/couriers';
   static const diary = '/diary';
+  static const notifications = '/notifications';
   static const analytics = '/analytics';
   static const plan = '/plan';
   static const chat = '/chat';
@@ -71,6 +75,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.profile,
         builder: (_, __) => const ProfileScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.notifications,
+        builder: (_, __) => const NotificationsScreen(),
       ),
       GoRoute(
         path: AppRoutes.users,
@@ -149,7 +157,7 @@ final routerProvider = Provider<GoRouter>((ref) {
           ),
           GoRoute(
             path: AppRoutes.couriers,
-            builder: (_, __) => const CouriersPlaceholder(),
+            builder: (_, __) => const CouriersListScreen(),
           ),
           GoRoute(
             path: AppRoutes.diary,
@@ -165,7 +173,7 @@ final routerProvider = Provider<GoRouter>((ref) {
           ),
           GoRoute(
             path: AppRoutes.chat,
-            builder: (_, __) => const ChatPlaceholder(),
+            builder: (_, __) => const ChatScreen(),
           ),
           GoRoute(
             path: AppRoutes.settings,

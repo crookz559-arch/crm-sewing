@@ -125,6 +125,8 @@
   "chatInputHint": "Xabar...",
   "chatSend": "Yuborish",
 
+  "notifTitle": "Bildirishnomalar",
+  "notifMarkAllRead": "Hammasini o'qilgan deb belgilash",
   "notifOrderReady": "Buyurtma tayyor",
   "notifOrderReadyBody": "#{id} buyurtma tayyor. Hujjatlarni rasmiylashtiring.",
   "notifDeadlineSoon": "Buyurtma muddati tugaydi",

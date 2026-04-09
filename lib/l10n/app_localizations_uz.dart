@@ -389,4 +389,10 @@ class AppLocalizationsUz extends AppLocalizations {
 
   @override
   String get diaryApproveSalary => 'Maoshni tasdiqlash';
+
+  @override
+  String get notifTitle => 'Bildirishnomalar';
+
+  @override
+  String get notifMarkAllRead => "Hammasini o'qilgan deb belgilash";
 }
