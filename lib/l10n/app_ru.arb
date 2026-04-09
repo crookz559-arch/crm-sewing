@@ -81,10 +81,14 @@
 
   "clientsTitle": "Клиенты",
   "clientNew": "Новый клиент",
+  "clientEdit": "Редактировать клиента",
   "clientName": "Имя",
   "clientPhone": "Телефон",
   "clientEmail": "Email",
   "clientHistory": "История заказов",
+  "createdAt": "Создан",
+  "notes": "Примечания",
+  "notSpecified": "Не указан",
 
   "couriersTitle": "Курьеры",
   "courierLog": "Запись доставки",

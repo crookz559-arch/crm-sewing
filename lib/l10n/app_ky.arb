@@ -81,10 +81,14 @@
 
   "clientsTitle": "Кардарлар",
   "clientNew": "Жаңы кардар",
+  "clientEdit": "Кардарды өзгөртүү",
   "clientName": "Аты",
   "clientPhone": "Телефон",
   "clientEmail": "Email",
   "clientHistory": "Заказдар тарыхы",
+  "createdAt": "Түзүлгөн",
+  "notes": "Эскертме",
+  "notSpecified": "Көрсөтүлгөн жок",
 
   "couriersTitle": "Курьерлер",
   "courierLog": "Жеткирүү жазуусу",

@@ -231,7 +231,19 @@ class AppLocalizationsKy extends AppLocalizations {
   String get clientEmail => 'Email';
 
   @override
+  String get clientEdit => 'Кардарды өзгөртүү';
+
+  @override
   String get clientHistory => 'Заказдар тарыхы';
+
+  @override
+  String get createdAt => 'Түзүлгөн';
+
+  @override
+  String get notes => 'Эскертме';
+
+  @override
+  String get notSpecified => 'Көрсөтүлгөн жок';
 
   @override
   String get couriersTitle => 'Курьерлер';

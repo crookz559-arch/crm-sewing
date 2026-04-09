@@ -9,6 +9,9 @@ import '../../features/users/presentation/users_screen.dart';
 import '../../features/orders/presentation/screens/orders_list_screen.dart';
 import '../../features/orders/presentation/screens/order_detail_screen.dart';
 import '../../features/orders/presentation/screens/order_form_screen.dart';
+import '../../features/clients/presentation/screens/clients_list_screen.dart';
+import '../../features/clients/presentation/screens/client_detail_screen.dart';
+import '../../features/clients/presentation/screens/client_form_screen.dart';
 import '../../shared/providers/auth_provider.dart';
 import '../../shared/models/user_role.dart';
 import '../shell/main_shell.dart';
@@ -81,6 +84,20 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: AppRoutes.orderCreate,
         builder: (_, __) => const OrderFormScreen(),
       ),
+      GoRoute(
+        path: '/clients/create',
+        builder: (_, __) => const ClientFormScreen(),
+      ),
+      GoRoute(
+        path: '/clients/:id',
+        builder: (_, state) =>
+            ClientDetailScreen(clientId: state.pathParameters['id']!),
+      ),
+      GoRoute(
+        path: '/clients/:id/edit',
+        builder: (_, state) =>
+            ClientFormScreen(clientId: state.pathParameters['id']),
+      ),
       ShellRoute(
         builder: (context, state, child) => MainShell(child: child),
         routes: [
@@ -94,7 +111,7 @@ final routerProvider = Provider<GoRouter>((ref) {
           ),
           GoRoute(
             path: AppRoutes.clients,
-            builder: (_, __) => const ClientsPlaceholder(),
+            builder: (_, __) => const ClientsListScreen(),
           ),
           GoRoute(
             path: AppRoutes.couriers,

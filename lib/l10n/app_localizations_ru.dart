@@ -231,7 +231,19 @@ class AppLocalizationsRu extends AppLocalizations {
   String get clientEmail => 'Email';
 
   @override
+  String get clientEdit => 'Редактировать клиента';
+
+  @override
   String get clientHistory => 'История заказов';
+
+  @override
+  String get createdAt => 'Создан';
+
+  @override
+  String get notes => 'Примечания';
+
+  @override
+  String get notSpecified => 'Не указан';
 
   @override
   String get couriersTitle => 'Курьеры';

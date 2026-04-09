@@ -231,7 +231,19 @@ class AppLocalizationsUz extends AppLocalizations {
   String get clientEmail => 'Email';
 
   @override
+  String get clientEdit => 'Mijozni tahrirlash';
+
+  @override
   String get clientHistory => 'Buyurtmalar tarixi';
+
+  @override
+  String get createdAt => 'Yaratilgan';
+
+  @override
+  String get notes => 'Izohlar';
+
+  @override
+  String get notSpecified => "Ko'rsatilmagan";
 
   @override
   String get couriersTitle => 'Kurierlar';

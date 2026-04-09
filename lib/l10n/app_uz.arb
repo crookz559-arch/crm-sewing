@@ -81,10 +81,14 @@
 
   "clientsTitle": "Mijozlar",
   "clientNew": "Yangi mijoz",
+  "clientEdit": "Mijozni tahrirlash",
   "clientName": "Ism",
   "clientPhone": "Telefon",
   "clientEmail": "Email",
   "clientHistory": "Buyurtmalar tarixi",
+  "createdAt": "Yaratilgan",
+  "notes": "Izohlar",
+  "notSpecified": "Ko'rsatilmagan",
 
   "couriersTitle": "Kurierlar",
   "courierLog": "Yetkazib berish yozuvi",

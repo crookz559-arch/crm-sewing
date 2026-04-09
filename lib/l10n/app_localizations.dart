@@ -544,11 +544,35 @@ abstract class AppLocalizations {
   /// **'Email'**
   String get clientEmail;
 
+  /// No description provided for @clientEdit.
+  ///
+  /// In ru, this message translates to:
+  /// **'Редактировать клиента'**
+  String get clientEdit;
+
   /// No description provided for @clientHistory.
   ///
   /// In ru, this message translates to:
   /// **'История заказов'**
   String get clientHistory;
+
+  /// No description provided for @createdAt.
+  ///
+  /// In ru, this message translates to:
+  /// **'Создан'**
+  String get createdAt;
+
+  /// No description provided for @notes.
+  ///
+  /// In ru, this message translates to:
+  /// **'Примечания'**
+  String get notes;
+
+  /// No description provided for @notSpecified.
+  ///
+  /// In ru, this message translates to:
+  /// **'Не указан'**
+  String get notSpecified;
 
   /// No description provided for @couriersTitle.
   ///
