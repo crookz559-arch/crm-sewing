@@ -34,7 +34,7 @@ class AppTheme {
           color: AppColors.white,
         ),
       ),
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         elevation: 2,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
@@ -74,7 +74,7 @@ class AppTheme {
       ),
       navigationBarTheme: NavigationBarThemeData(
         backgroundColor: AppColors.white,
-        indicatorColor: AppColors.primaryLight.withOpacity(0.2),
+        indicatorColor: AppColors.primaryLight.withValues(alpha: 0.2),
         labelTextStyle: WidgetStateProperty.all(
           GoogleFonts.nunito(fontSize: 11, fontWeight: FontWeight.w600),
         ),
@@ -117,7 +117,7 @@ class AppTheme {
           color: AppColors.white,
         ),
       ),
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         color: const Color(0xFF2A2A3E),
         elevation: 2,
         shape: RoundedRectangleBorder(
@@ -159,7 +159,7 @@ class AppTheme {
       ),
       navigationBarTheme: NavigationBarThemeData(
         backgroundColor: const Color(0xFF1E1E2E),
-        indicatorColor: AppColors.primaryLight.withOpacity(0.2),
+        indicatorColor: AppColors.primaryLight.withValues(alpha: 0.2),
         labelTextStyle: WidgetStateProperty.all(
           GoogleFonts.nunito(fontSize: 11, fontWeight: FontWeight.w600),
         ),

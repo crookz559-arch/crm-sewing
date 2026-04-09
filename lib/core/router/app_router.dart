@@ -3,14 +3,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../features/auth/presentation/screens/login_screen.dart';
 import '../../features/auth/presentation/screens/splash_screen.dart';
+import '../../features/settings/presentation/settings_screen.dart';
+import '../../features/profile/presentation/profile_screen.dart';
+import '../../features/users/presentation/users_screen.dart';
 import '../../shared/providers/auth_provider.dart';
 import '../shell/main_shell.dart';
 
-// Route names
 class AppRoutes {
   static const splash = '/';
   static const login = '/login';
-  static const dashboard = '/dashboard';
   static const orders = '/orders';
   static const orderDetail = '/orders/:id';
   static const orderCreate = '/orders/create';
@@ -24,6 +25,8 @@ class AppRoutes {
   static const plan = '/plan';
   static const chat = '/chat';
   static const settings = '/settings';
+  static const profile = '/profile';
+  static const users = '/users';
 }
 
 final routerProvider = Provider<GoRouter>((ref) {
@@ -50,6 +53,15 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.login,
         builder: (_, __) => const LoginScreen(),
+      ),
+      // Экраны без нижней навигации (поверх shell)
+      GoRoute(
+        path: AppRoutes.profile,
+        builder: (_, __) => const ProfileScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.users,
+        builder: (_, __) => const UsersScreen(),
       ),
       ShellRoute(
         builder: (context, state, child) => MainShell(child: child),
@@ -88,7 +100,7 @@ final routerProvider = Provider<GoRouter>((ref) {
           ),
           GoRoute(
             path: AppRoutes.settings,
-            builder: (_, __) => const SettingsPlaceholder(),
+            builder: (_, __) => const SettingsScreen(),
           ),
         ],
       ),
@@ -96,7 +108,7 @@ final routerProvider = Provider<GoRouter>((ref) {
   );
 });
 
-// Временные placeholder экраны — будут заменены в следующих этапах
+// Placeholder-экраны — будут заменены в следующих этапах
 class OrdersPlaceholder extends StatelessWidget {
   const OrdersPlaceholder({super.key});
   @override
@@ -151,11 +163,4 @@ class ChatPlaceholder extends StatelessWidget {
   @override
   Widget build(BuildContext context) =>
       const Center(child: Text('Чат — этап 6'));
-}
-
-class SettingsPlaceholder extends StatelessWidget {
-  const SettingsPlaceholder({super.key});
-  @override
-  Widget build(BuildContext context) =>
-      const Center(child: Text('Настройки'));
 }
