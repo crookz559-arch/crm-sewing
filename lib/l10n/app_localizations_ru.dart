@@ -395,4 +395,19 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get notifMarkAllRead => 'Прочитать все';
+
+  @override
+  String get analyticsRevenue => 'Выручка';
+  @override
+  String get analyticsOrders => 'Заказов';
+  @override
+  String get analyticsMonthly => 'Выручка по месяцам';
+  @override
+  String get analyticsStatus => 'По статусам';
+  @override
+  String get analyticsTopClients => 'Топ клиенты';
+  @override
+  String get planDiff => 'Разница';
+  @override
+  String get planSetTarget => 'Установить план';
 }

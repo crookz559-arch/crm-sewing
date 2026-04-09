@@ -21,6 +21,8 @@ import '../../features/diary/presentation/screens/diary_entry_form_screen.dart';
 import '../../features/couriers/presentation/screens/couriers_list_screen.dart';
 import '../../features/chat/presentation/chat_screen.dart';
 import '../../features/notifications/presentation/notifications_screen.dart';
+import '../../features/analytics/presentation/analytics_screen.dart';
+import '../../features/plan/presentation/plan_screen.dart';
 import '../../shared/providers/auth_provider.dart';
 import '../../shared/models/user_role.dart';
 import '../shell/main_shell.dart';
@@ -165,11 +167,11 @@ final routerProvider = Provider<GoRouter>((ref) {
           ),
           GoRoute(
             path: AppRoutes.analytics,
-            builder: (_, __) => const AnalyticsPlaceholder(),
+            builder: (_, __) => const AnalyticsScreen(),
           ),
           GoRoute(
             path: AppRoutes.plan,
-            builder: (_, __) => const PlanPlaceholder(),
+            builder: (_, __) => const PlanScreen(),
           ),
           GoRoute(
             path: AppRoutes.chat,

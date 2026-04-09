@@ -395,4 +395,19 @@ class AppLocalizationsUz extends AppLocalizations {
 
   @override
   String get notifMarkAllRead => "Hammasini o'qilgan deb belgilash";
+
+  @override
+  String get analyticsRevenue => 'Daromad';
+  @override
+  String get analyticsOrders => 'Buyurtmalar';
+  @override
+  String get analyticsMonthly => 'Oylik daromad';
+  @override
+  String get analyticsStatus => "Holat bo'yicha";
+  @override
+  String get analyticsTopClients => 'Top mijozlar';
+  @override
+  String get planDiff => 'Farq';
+  @override
+  String get planSetTarget => 'Reja belgilash';
 }

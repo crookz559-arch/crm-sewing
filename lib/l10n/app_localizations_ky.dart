@@ -395,4 +395,19 @@ class AppLocalizationsKy extends AppLocalizations {
 
   @override
   String get notifMarkAllRead => 'Баарын окулган деп белгилөө';
+
+  @override
+  String get analyticsRevenue => 'Киреше';
+  @override
+  String get analyticsOrders => 'Заказдар';
+  @override
+  String get analyticsMonthly => 'Айлык киреше';
+  @override
+  String get analyticsStatus => 'Абал боюнча';
+  @override
+  String get analyticsTopClients => 'Топ кардарлар';
+  @override
+  String get planDiff => 'Айырма';
+  @override
+  String get planSetTarget => 'Пландоо';
 }

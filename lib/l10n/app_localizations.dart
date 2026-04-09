@@ -828,6 +828,13 @@ abstract class AppLocalizations {
   String get diaryApproveSalary;
   String get notifTitle;
   String get notifMarkAllRead;
+  String get analyticsRevenue;
+  String get analyticsOrders;
+  String get analyticsMonthly;
+  String get analyticsStatus;
+  String get analyticsTopClients;
+  String get planDiff;
+  String get planSetTarget;
 }
 
 class _AppLocalizationsDelegate
