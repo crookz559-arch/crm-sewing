@@ -72,7 +72,7 @@ class TasksRepository {
       'title': title,
       'description': description,
       'order_id': orderId,
-      'deadline': deadline?.toIso8601String().split('T').first,
+      'deadline': deadline?.toUtc().toIso8601String(),
       'assigned_to': assignedTo,
       'created_by': uid,
       'status': 'pending',
@@ -93,7 +93,7 @@ class TasksRepository {
       'title': title,
       'description': description,
       'order_id': orderId,
-      'deadline': deadline?.toIso8601String().split('T').first,
+      'deadline': deadline?.toUtc().toIso8601String(),
       'assigned_to': assignedTo,
     }).eq('id', id);
   }
@@ -114,3 +114,58 @@ class TasksRepository {
 
 final tasksRepositoryProvider =
     Provider<TasksRepository>((ref) => TasksRepository(ref));
+
+// Task notes provider
+final taskNotesProvider = FutureProvider.autoDispose
+    .family<List<Map<String, dynamic>>, String>((ref, taskId) async {
+  final client = ref.watch(supabaseClientProvider);
+  final data = await client
+      .from('task_notes')
+      .select('*, author:user_id(name)')
+      .eq('task_id', taskId)
+      .order('created_at', ascending: true);
+  return List<Map<String, dynamic>>.from(data as List);
+});
+
+// Task attachments provider
+final taskAttachmentsProvider = FutureProvider.autoDispose
+    .family<List<Map<String, dynamic>>, String>((ref, taskId) async {
+  final client = ref.watch(supabaseClientProvider);
+  final data = await client
+      .from('task_attachments')
+      .select('*')
+      .eq('task_id', taskId)
+      .order('created_at', ascending: true);
+  return List<Map<String, dynamic>>.from(data as List);
+});
+
+extension TasksRepositoryNotes on TasksRepository {
+  Future<void> addNote(String taskId, String content) async {
+    final client = _ref.read(supabaseClientProvider);
+    await client.from('task_notes').insert({
+      'task_id': taskId,
+      'content': content,
+      'user_id': client.auth.currentUser!.id,
+    });
+  }
+
+  Future<void> addAttachment(
+      String taskId, String url, String fileName, String fileType) async {
+    final client = _ref.read(supabaseClientProvider);
+    await client.from('task_attachments').insert({
+      'task_id': taskId,
+      'url': url,
+      'file_name': fileName,
+      'file_type': fileType,
+      'uploaded_by': client.auth.currentUser!.id,
+    });
+  }
+
+  Future<void> deleteAttachment(String attachmentId) async {
+    final client = _ref.read(supabaseClientProvider);
+    await client
+        .from('task_attachments')
+        .delete()
+        .eq('id', attachmentId);
+  }
+}

@@ -5,11 +5,18 @@ import '../../../core/theme/app_colors.dart';
 import '../../../shared/providers/auth_provider.dart';
 import '../data/plan_repository.dart';
 
-class PlanScreen extends ConsumerWidget {
+class PlanScreen extends ConsumerStatefulWidget {
   const PlanScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<PlanScreen> createState() => _PlanScreenState();
+}
+
+class _PlanScreenState extends ConsumerState<PlanScreen> {
+  bool _saving = false;
+
+  @override
+  Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final role = ref.watch(currentRoleProvider);
     final month = ref.watch(planMonthProvider);
@@ -32,8 +39,7 @@ class PlanScreen extends ConsumerWidget {
               ),
               Text(
                 _monthName(month),
-                style: const TextStyle(
-                    fontSize: 18, fontWeight: FontWeight.bold),
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               IconButton(
                 icon: const Icon(Icons.chevron_right),
@@ -46,9 +52,19 @@ class PlanScreen extends ConsumerWidget {
           const SizedBox(height: 8),
 
           planAsync.when(
-            loading: () =>
-                const Center(child: CircularProgressIndicator()),
-            error: (e, _) => Center(child: Text('$e')),
+            loading: () => const Center(child: CircularProgressIndicator()),
+            error: (e, _) => Center(
+              child: Column(mainAxisSize: MainAxisSize.min, children: [
+                const Icon(Icons.error_outline, size: 48, color: AppColors.statusRework),
+                const SizedBox(height: 8),
+                Text('$e', textAlign: TextAlign.center),
+                const SizedBox(height: 12),
+                ElevatedButton(
+                  onPressed: () => ref.invalidate(planProvider),
+                  child: const Text('Повторить'),
+                ),
+              ]),
+            ),
             data: (plan) => Column(
               children: [
                 // Gauge card
@@ -57,12 +73,10 @@ class PlanScreen extends ConsumerWidget {
                     padding: const EdgeInsets.all(20),
                     child: Column(
                       children: [
-                        // Progress bar
                         _PlanGauge(plan: plan),
                         const SizedBox(height: 16),
                         Row(
-                          mainAxisAlignment:
-                              MainAxisAlignment.spaceEvenly,
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
                             _MetricTile(
                               label: l10n.planTarget,
@@ -88,14 +102,11 @@ class PlanScreen extends ConsumerWidget {
                           ],
                         ),
                         const SizedBox(height: 12),
-                        // Status label
                         if (plan.targetRevenue > 0)
                           Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 16, vertical: 6),
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
                             decoration: BoxDecoration(
-                              color: _statusColor(plan)
-                                  .withValues(alpha: 0.12),
+                              color: _statusColor(plan).withValues(alpha: 0.12),
                               borderRadius: BorderRadius.circular(20),
                             ),
                             child: Text(
@@ -111,13 +122,22 @@ class PlanScreen extends ConsumerWidget {
                 ),
                 const SizedBox(height: 16),
 
-                // Set target (director/GM only)
+                // Set / update target (director/manager only)
                 if (role.canViewAnalytics)
-                  FilledButton.tonal(
-                    onPressed: () => _showSetTargetDialog(
-                        context, ref, plan),
-                    child: Text(l10n.planSetTarget),
-                  ),
+                  _saving
+                      ? const CircularProgressIndicator()
+                      : SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton.icon(
+                            onPressed: () => _showSetTargetDialog(plan),
+                            icon: Icon(plan.targetRevenue > 0
+                                ? Icons.edit_outlined
+                                : Icons.flag_outlined, size: 18),
+                            label: Text(plan.targetRevenue > 0
+                                ? 'Изменить план'
+                                : l10n.planSetTarget),
+                          ),
+                        ),
               ],
             ),
           ),
@@ -126,50 +146,69 @@ class PlanScreen extends ConsumerWidget {
     );
   }
 
-  Future<void> _showSetTargetDialog(
-      BuildContext context, WidgetRef ref, MonthPlan plan) async {
+  Future<void> _showSetTargetDialog(MonthPlan plan) async {
     final ctrl = TextEditingController(
-        text: plan.targetRevenue > 0
-            ? plan.targetRevenue.toStringAsFixed(0)
-            : '');
-    final month = ref.read(planMonthProvider);
+        text: plan.targetRevenue > 0 ? plan.targetRevenue.toStringAsFixed(0) : '');
+
     final ok = await showDialog<bool>(
       context: context,
-      builder: (_) => AlertDialog(
-        title: const Text('Установить план'),
+      builder: (ctx) => AlertDialog(
+        title: Text(plan.targetRevenue > 0 ? 'Изменить план' : 'Установить план'),
         content: TextField(
           controller: ctrl,
-          decoration: const InputDecoration(
-              labelText: 'Цель (₽)', suffixText: '₽'),
+          decoration: const InputDecoration(labelText: 'Цель (₽)', suffixText: '₽'),
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
           autofocus: true,
         ),
         actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(context, false),
+          OutlinedButton(
+              onPressed: () => Navigator.pop(ctx, false),
               child: const Text('Отмена')),
-          FilledButton(
-              onPressed: () => Navigator.pop(context, true),
+          ElevatedButton(
+              onPressed: () => Navigator.pop(ctx, true),
               child: const Text('Сохранить')),
         ],
       ),
     );
-    if (ok != true) return;
-    final target = double.tryParse(ctrl.text.trim());
-    if (target == null || target <= 0) return;
-    await ref.read(planRepositoryProvider).setTarget(
-          year: month.year,
-          month: month.month,
-          target: target,
-          existingId: plan.id,
+    if (ok != true || !mounted) return;
+
+    final target = double.tryParse(ctrl.text.trim().replaceAll(',', '.'));
+    if (target == null || target <= 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Введите корректную сумму')));
+      return;
+    }
+
+    setState(() => _saving = true);
+    try {
+      final month = ref.read(planMonthProvider);
+      await ref.read(planRepositoryProvider).setTarget(
+            year: month.year,
+            month: month.month,
+            target: target,
+            existingId: plan.id,
+          );
+      if (mounted) {
+        ref.invalidate(planProvider);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('План на ${_monthName(month)} установлен: ${target.toStringAsFixed(0)} ₽'),
+            backgroundColor: AppColors.planAhead,
+          ),
         );
-    ref.invalidate(planProvider);
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Ошибка: $e'), backgroundColor: Colors.red));
+      }
+    } finally {
+      if (mounted) setState(() => _saving = false);
+    }
   }
 
   static String _fmt(double v) {
-    if (v.abs() >= 1000000) {
-      return '${(v / 1000000).toStringAsFixed(1)}M';
-    }
+    if (v.abs() >= 1000000) return '${(v / 1000000).toStringAsFixed(1)}M';
     if (v.abs() >= 1000) return '${(v / 1000).toStringAsFixed(0)}K';
     return v.toStringAsFixed(0);
   }
@@ -240,19 +279,15 @@ class _MetricTile extends StatelessWidget {
   final String label;
   final String value;
   final Color color;
-  const _MetricTile(
-      {required this.label, required this.value, required this.color});
+  const _MetricTile({required this.label, required this.value, required this.color});
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
         Text(value,
-            style: TextStyle(
-                fontSize: 16, fontWeight: FontWeight.bold, color: color)),
-        Text(label,
-            style: const TextStyle(
-                fontSize: 11, color: AppColors.grey600)),
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: color)),
+        Text(label, style: const TextStyle(fontSize: 11, color: AppColors.grey600)),
       ],
     );
   }

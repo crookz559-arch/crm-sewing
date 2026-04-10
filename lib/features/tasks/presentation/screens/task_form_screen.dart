@@ -48,7 +48,20 @@ class _TaskFormScreenState extends ConsumerState<TaskFormScreen> {
       firstDate: DateTime.now().subtract(const Duration(days: 1)),
       lastDate: DateTime.now().add(const Duration(days: 365)),
     );
-    if (d != null) setState(() => _deadline = d);
+    if (d == null) return;
+    if (!mounted) return;
+    final t = await showTimePicker(
+      context: context,
+      initialTime: _deadline != null
+          ? TimeOfDay(hour: _deadline!.hour, minute: _deadline!.minute)
+          : TimeOfDay.now(),
+    );
+    setState(() {
+      _deadline = DateTime(
+        d.year, d.month, d.day,
+        t?.hour ?? 0, t?.minute ?? 0,
+      );
+    });
   }
 
   Future<void> _submit() async {
@@ -150,7 +163,7 @@ class _TaskFormScreenState extends ConsumerState<TaskFormScreen> {
                 ),
                 child: Text(
                   _deadline != null
-                      ? '${_deadline!.day.toString().padLeft(2, '0')}.${_deadline!.month.toString().padLeft(2, '0')}.${_deadline!.year}'
+                      ? '${_deadline!.day.toString().padLeft(2, '0')}.${_deadline!.month.toString().padLeft(2, '0')}.${_deadline!.year}  ${_deadline!.hour.toString().padLeft(2, '0')}:${_deadline!.minute.toString().padLeft(2, '0')}'
                       : l10n.notSpecified,
                   style: TextStyle(
                     color: _deadline != null ? null : const Color(0xFF9E9E9E),

@@ -10,6 +10,8 @@ class OrderModel {
   final OrderStatus status;
   final DateTime? deadline;
   final double? price;
+  final double paidAmount;
+  final String financialStatus; // 'unpaid', 'prepaid', 'paid'
   final String? assignedTo;
   final String? assigneeName;
   final String? createdBy;
@@ -26,12 +28,16 @@ class OrderModel {
     required this.status,
     this.deadline,
     this.price,
+    this.paidAmount = 0,
+    this.financialStatus = 'unpaid',
     this.assignedTo,
     this.assigneeName,
     this.createdBy,
     required this.createdAt,
     required this.updatedAt,
   });
+
+  double get balance => (price ?? 0) - paidAmount;
 
   factory OrderModel.fromJson(Map<String, dynamic> json) {
     final clientData = json['clients'] as Map<String, dynamic>?;
@@ -49,6 +55,8 @@ class OrderModel {
           ? DateTime.parse(json['deadline'] as String)
           : null,
       price: (json['price'] as num?)?.toDouble(),
+      paidAmount: (json['paid_amount'] as num?)?.toDouble() ?? 0,
+      financialStatus: json['financial_status'] as String? ?? 'unpaid',
       assignedTo: json['assigned_to'] as String?,
       assigneeName: assigneeData?['name'] as String?,
       createdBy: json['created_by'] as String?,
@@ -57,7 +65,6 @@ class OrderModel {
     );
   }
 
-  // Дни до дедлайна (отрицательное = просрочено)
   int? get daysUntilDeadline {
     if (deadline == null) return null;
     return deadline!.difference(DateTime.now()).inDays;
@@ -75,6 +82,10 @@ class OrderModel {
 
   bool get isActive =>
       status != OrderStatus.closed && status != OrderStatus.rework;
+
+  /// Returns true if this order needs a closing document (АКТ/УПД)
+  bool get needsDocument =>
+      status == OrderStatus.ready || status == OrderStatus.delivery;
 }
 
 enum DeadlineState { none, ok, warning, critical, today, overdue }

@@ -208,6 +208,18 @@ abstract class AppLocalizations {
   /// **'Данных нет'**
   String get noData;
 
+  /// No description provided for @all.
+  ///
+  /// In ru, this message translates to:
+  /// **'Все'**
+  String get all;
+
+  /// No description provided for @onlyMine.
+  ///
+  /// In ru, this message translates to:
+  /// **'Мои'**
+  String get onlyMine;
+
   /// No description provided for @error.
   ///
   /// In ru, this message translates to:
@@ -478,6 +490,12 @@ abstract class AppLocalizations {
   /// **'Новая задача'**
   String get taskNew;
 
+  /// No description provided for @taskTitle.
+  ///
+  /// In ru, this message translates to:
+  /// **'Название'**
+  String get taskTitle;
+
   /// No description provided for @taskAssignee.
   ///
   /// In ru, this message translates to:
@@ -526,6 +544,12 @@ abstract class AppLocalizations {
   /// **'Новый клиент'**
   String get clientNew;
 
+  /// No description provided for @clientEdit.
+  ///
+  /// In ru, this message translates to:
+  /// **'Редактировать клиента'**
+  String get clientEdit;
+
   /// No description provided for @clientName.
   ///
   /// In ru, this message translates to:
@@ -543,12 +567,6 @@ abstract class AppLocalizations {
   /// In ru, this message translates to:
   /// **'Email'**
   String get clientEmail;
-
-  /// No description provided for @clientEdit.
-  ///
-  /// In ru, this message translates to:
-  /// **'Редактировать клиента'**
-  String get clientEdit;
 
   /// No description provided for @clientHistory.
   ///
@@ -658,11 +676,59 @@ abstract class AppLocalizations {
   /// **'ЗП (руб.)'**
   String get diarySalary;
 
+  /// No description provided for @diaryApproved.
+  ///
+  /// In ru, this message translates to:
+  /// **'Утверждено'**
+  String get diaryApproved;
+
+  /// No description provided for @diaryPending.
+  ///
+  /// In ru, this message translates to:
+  /// **'Ожидает'**
+  String get diaryPending;
+
+  /// No description provided for @diaryApproveSalary.
+  ///
+  /// In ru, this message translates to:
+  /// **'Утвердить ЗП'**
+  String get diaryApproveSalary;
+
   /// No description provided for @analyticsTitle.
   ///
   /// In ru, this message translates to:
   /// **'Аналитика'**
   String get analyticsTitle;
+
+  /// No description provided for @analyticsRevenue.
+  ///
+  /// In ru, this message translates to:
+  /// **'Выручка'**
+  String get analyticsRevenue;
+
+  /// No description provided for @analyticsOrders.
+  ///
+  /// In ru, this message translates to:
+  /// **'Заказов'**
+  String get analyticsOrders;
+
+  /// No description provided for @analyticsMonthly.
+  ///
+  /// In ru, this message translates to:
+  /// **'Выручка по месяцам'**
+  String get analyticsMonthly;
+
+  /// No description provided for @analyticsStatus.
+  ///
+  /// In ru, this message translates to:
+  /// **'По статусам'**
+  String get analyticsStatus;
+
+  /// No description provided for @analyticsTopClients.
+  ///
+  /// In ru, this message translates to:
+  /// **'Топ клиенты'**
+  String get analyticsTopClients;
 
   /// No description provided for @planTitle.
   ///
@@ -679,14 +745,20 @@ abstract class AppLocalizations {
   /// No description provided for @planTarget.
   ///
   /// In ru, this message translates to:
-  /// **'Цель (руб.)'**
+  /// **'Цель'**
   String get planTarget;
 
   /// No description provided for @planFact.
   ///
   /// In ru, this message translates to:
-  /// **'Факт (руб.)'**
+  /// **'Факт'**
   String get planFact;
+
+  /// No description provided for @planDiff.
+  ///
+  /// In ru, this message translates to:
+  /// **'Разница'**
+  String get planDiff;
 
   /// No description provided for @planAhead.
   ///
@@ -706,6 +778,12 @@ abstract class AppLocalizations {
   /// **'По плану'**
   String get planOnTrack;
 
+  /// No description provided for @planSetTarget.
+  ///
+  /// In ru, this message translates to:
+  /// **'Установить план'**
+  String get planSetTarget;
+
   /// No description provided for @chatTitle.
   ///
   /// In ru, this message translates to:
@@ -723,6 +801,18 @@ abstract class AppLocalizations {
   /// In ru, this message translates to:
   /// **'Отправить'**
   String get chatSend;
+
+  /// No description provided for @notifTitle.
+  ///
+  /// In ru, this message translates to:
+  /// **'Уведомления'**
+  String get notifTitle;
+
+  /// No description provided for @notifMarkAllRead.
+  ///
+  /// In ru, this message translates to:
+  /// **'Прочитать все'**
+  String get notifMarkAllRead;
 
   /// No description provided for @notifOrderReady.
   ///
@@ -819,22 +909,6 @@ abstract class AppLocalizations {
   /// In ru, this message translates to:
   /// **'Системная'**
   String get settingsThemeSystem;
-
-  String get all;
-  String get onlyMine;
-  String get taskTitle;
-  String get diaryApproved;
-  String get diaryPending;
-  String get diaryApproveSalary;
-  String get notifTitle;
-  String get notifMarkAllRead;
-  String get analyticsRevenue;
-  String get analyticsOrders;
-  String get analyticsMonthly;
-  String get analyticsStatus;
-  String get analyticsTopClients;
-  String get planDiff;
-  String get planSetTarget;
 }
 
 class _AppLocalizationsDelegate

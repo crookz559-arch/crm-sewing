@@ -13,6 +13,18 @@ class MonthlyRevenue {
       required this.ordersCount});
 }
 
+class WeeklyRevenue {
+  final int weekNumber;
+  final DateTime weekStart;
+  final double revenue;
+  final int ordersCount;
+  const WeeklyRevenue(
+      {required this.weekNumber,
+      required this.weekStart,
+      required this.revenue,
+      required this.ordersCount});
+}
+
 class StatusStat {
   final String status;
   final int count;
@@ -33,12 +45,14 @@ class ClientStat {
 
 class AnalyticsData {
   final List<MonthlyRevenue> monthlyRevenue;
+  final List<WeeklyRevenue> weeklyRevenue;
   final List<StatusStat> statusStats;
   final List<ClientStat> topClients;
   final double totalRevenue;
   final int totalOrders;
   const AnalyticsData({
     required this.monthlyRevenue,
+    required this.weeklyRevenue,
     required this.statusStats,
     required this.topClients,
     required this.totalRevenue,
@@ -84,6 +98,22 @@ final analyticsProvider =
     );
   }
 
+  // Weekly revenue
+  final weekMap = <int, WeeklyRevenue>{};
+  for (final o in orders) {
+    final date = DateTime.parse(o['created_at'] as String);
+    final weekNum = _isoWeekNumber(date);
+    final wStart = _weekStart(date);
+    final price = (o['price'] as num?)?.toDouble() ?? 0;
+    final existing = weekMap[weekNum];
+    weekMap[weekNum] = WeeklyRevenue(
+      weekNumber: weekNum,
+      weekStart: existing?.weekStart ?? wStart,
+      revenue: (existing?.revenue ?? 0) + price,
+      ordersCount: (existing?.ordersCount ?? 0) + 1,
+    );
+  }
+
   // Status stats
   final statusCount = <String, int>{};
   for (final o in orders) {
@@ -121,9 +151,22 @@ final analyticsProvider =
   return AnalyticsData(
     monthlyRevenue: monthMap.values.toList()
       ..sort((a, b) => a.month.compareTo(b.month)),
+    weeklyRevenue: weekMap.values.toList()
+      ..sort((a, b) => a.weekNumber.compareTo(b.weekNumber)),
     statusStats: statusStats,
     topClients: topClients.take(10).toList(),
     totalRevenue: totalRevenue,
     totalOrders: orders.length,
   );
 });
+
+int _isoWeekNumber(DateTime date) {
+  final doy = date.difference(DateTime(date.year, 1, 1)).inDays + 1;
+  return ((doy - date.weekday + 10) / 7).floor();
+}
+
+DateTime _weekStart(DateTime date) {
+  final offset = date.weekday - 1;
+  final d = date.subtract(Duration(days: offset));
+  return DateTime(d.year, d.month, d.day);
+}

@@ -8,12 +8,40 @@ import '../../../../core/theme/app_colors.dart';
 class SplashScreen extends ConsumerWidget {
   const SplashScreen({super.key});
 
+  void _navigate(BuildContext context, WidgetRef ref) {
+    final authState = ref.read(authStateProvider);
+    authState.whenData((user) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!context.mounted) return;
+        if (user != null) {
+          context.go(AppRoutes.dashboard);
+        } else {
+          context.go(AppRoutes.login);
+        }
+      });
+    });
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     ref.listen(authStateProvider, (_, next) {
       next.whenData((user) {
+        if (!context.mounted) return;
         if (user != null) {
-          context.go(AppRoutes.orders);
+          context.go(AppRoutes.dashboard);
+        } else {
+          context.go(AppRoutes.login);
+        }
+      });
+    });
+
+    // Handle initial state (stream may not emit if already settled)
+    final authState = ref.watch(authStateProvider);
+    authState.whenData((user) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!context.mounted) return;
+        if (user != null) {
+          context.go(AppRoutes.dashboard);
         } else {
           context.go(AppRoutes.login);
         }

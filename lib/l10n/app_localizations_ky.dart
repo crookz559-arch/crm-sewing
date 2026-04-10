@@ -63,6 +63,12 @@ class AppLocalizationsKy extends AppLocalizations {
   String get noData => 'Маалымат жок';
 
   @override
+  String get all => 'Баары';
+
+  @override
+  String get onlyMine => 'Менин';
+
+  @override
   String get error => 'Ката';
 
   @override
@@ -198,6 +204,9 @@ class AppLocalizationsKy extends AppLocalizations {
   String get taskNew => 'Жаңы тапшырма';
 
   @override
+  String get taskTitle => 'Аталышы';
+
+  @override
   String get taskAssignee => 'Аткаруучу';
 
   @override
@@ -222,6 +231,9 @@ class AppLocalizationsKy extends AppLocalizations {
   String get clientNew => 'Жаңы кардар';
 
   @override
+  String get clientEdit => 'Кардарды өзгөртүү';
+
+  @override
   String get clientName => 'Аты';
 
   @override
@@ -229,9 +241,6 @@ class AppLocalizationsKy extends AppLocalizations {
 
   @override
   String get clientEmail => 'Email';
-
-  @override
-  String get clientEdit => 'Кардарды өзгөртүү';
 
   @override
   String get clientHistory => 'Заказдар тарыхы';
@@ -288,7 +297,31 @@ class AppLocalizationsKy extends AppLocalizations {
   String get diarySalary => 'Эмгек акы (руб)';
 
   @override
+  String get diaryApproved => 'Бекитилген';
+
+  @override
+  String get diaryPending => 'Күтүүдө';
+
+  @override
+  String get diaryApproveSalary => 'Эмгек акыны бекитүү';
+
+  @override
   String get analyticsTitle => 'Аналитика';
+
+  @override
+  String get analyticsRevenue => 'Киреше';
+
+  @override
+  String get analyticsOrders => 'Заказдар';
+
+  @override
+  String get analyticsMonthly => 'Айлык киреше';
+
+  @override
+  String get analyticsStatus => 'Абал боюнча';
+
+  @override
+  String get analyticsTopClients => 'Топ кардарлар';
 
   @override
   String get planTitle => 'План / Факт';
@@ -297,10 +330,13 @@ class AppLocalizationsKy extends AppLocalizations {
   String get planMonth => 'Ай';
 
   @override
-  String get planTarget => 'Максат (руб)';
+  String get planTarget => 'Максат';
 
   @override
-  String get planFact => 'Факт (руб)';
+  String get planFact => 'Факт';
+
+  @override
+  String get planDiff => 'Айырма';
 
   @override
   String get planAhead => 'Алда';
@@ -312,6 +348,9 @@ class AppLocalizationsKy extends AppLocalizations {
   String get planOnTrack => 'Планга ылайык';
 
   @override
+  String get planSetTarget => 'Пландоо';
+
+  @override
   String get chatTitle => 'Чат';
 
   @override
@@ -319,6 +358,12 @@ class AppLocalizationsKy extends AppLocalizations {
 
   @override
   String get chatSend => 'Жөнөтүү';
+
+  @override
+  String get notifTitle => 'Билдирүүлөр';
+
+  @override
+  String get notifMarkAllRead => 'Баарын окулган деп белгилөө';
 
   @override
   String get notifOrderReady => 'Заказ даяр';
@@ -371,43 +416,4 @@ class AppLocalizationsKy extends AppLocalizations {
 
   @override
   String get settingsThemeSystem => 'Тутумдук';
-
-  @override
-  String get all => 'Баары';
-
-  @override
-  String get onlyMine => 'Менин';
-
-  @override
-  String get taskTitle => 'Аталышы';
-
-  @override
-  String get diaryApproved => 'Бекитилген';
-
-  @override
-  String get diaryPending => 'Күтүүдө';
-
-  @override
-  String get diaryApproveSalary => 'Эмгек акыны бекитүү';
-
-  @override
-  String get notifTitle => 'Билдирүүлөр';
-
-  @override
-  String get notifMarkAllRead => 'Баарын окулган деп белгилөө';
-
-  @override
-  String get analyticsRevenue => 'Киреше';
-  @override
-  String get analyticsOrders => 'Заказдар';
-  @override
-  String get analyticsMonthly => 'Айлык киреше';
-  @override
-  String get analyticsStatus => 'Абал боюнча';
-  @override
-  String get analyticsTopClients => 'Топ кардарлар';
-  @override
-  String get planDiff => 'Айырма';
-  @override
-  String get planSetTarget => 'Пландоо';
 }

@@ -50,10 +50,10 @@ final ordersProvider =
   final data = await query
       .order('deadline', ascending: true, nullsFirst: false)
       .order('created_at', ascending: false);
-  var orders =
-      (data as List).map((e) => OrderModel.fromJson(e as Map<String, dynamic>)).toList();
+  var orders = (data as List)
+      .map((e) => OrderModel.fromJson(e as Map<String, dynamic>))
+      .toList();
 
-  // Поиск по названию или клиенту
   if (filter.search != null && filter.search!.isNotEmpty) {
     final q = filter.search!.toLowerCase();
     orders = orders
@@ -86,7 +86,31 @@ final orderHistoryProvider = FutureProvider.autoDispose
       .from('order_history')
       .select('*, changed_by_user:changed_by(name)')
       .eq('order_id', orderId)
-      .order('created_at', ascending: false);
+      .order('created_at', ascending: true); // ascending for timeline
+  return List<Map<String, dynamic>>.from(data as List);
+});
+
+// Провайдер заметок заказа
+final orderNotesProvider = FutureProvider.autoDispose
+    .family<List<Map<String, dynamic>>, String>((ref, orderId) async {
+  final client = ref.watch(supabaseClientProvider);
+  final data = await client
+      .from('order_notes')
+      .select('*, author:user_id(name)')
+      .eq('order_id', orderId)
+      .order('created_at', ascending: true);
+  return List<Map<String, dynamic>>.from(data as List);
+});
+
+// Провайдер вложений заказа
+final orderAttachmentsProvider = FutureProvider.autoDispose
+    .family<List<Map<String, dynamic>>, String>((ref, orderId) async {
+  final client = ref.watch(supabaseClientProvider);
+  final data = await client
+      .from('order_attachments')
+      .select('*')
+      .eq('order_id', orderId)
+      .order('created_at', ascending: true);
   return List<Map<String, dynamic>>.from(data as List);
 });
 
@@ -102,6 +126,7 @@ class OrdersRepository {
     String? source,
     DateTime? deadline,
     double? price,
+    double? paidAmount,
     String? assignedTo,
   }) async {
     final client = _ref.read(supabaseClientProvider);
@@ -113,6 +138,8 @@ class OrdersRepository {
       'source': source,
       'deadline': deadline?.toIso8601String().split('T').first,
       'price': price,
+      'paid_amount': paidAmount ?? 0,
+      'financial_status': 'unpaid',
       'assigned_to': assignedTo,
       'created_by': uid,
       'status': 'new',
@@ -128,6 +155,7 @@ class OrdersRepository {
     String? source,
     DateTime? deadline,
     double? price,
+    double? paidAmount,
     String? assignedTo,
   }) async {
     final client = _ref.read(supabaseClientProvider);
@@ -138,7 +166,15 @@ class OrdersRepository {
       if (source != null) 'source': source,
       'deadline': deadline?.toIso8601String().split('T').first,
       'price': price,
+      if (paidAmount != null) 'paid_amount': paidAmount,
       'assigned_to': assignedTo,
+    }).eq('id', id);
+  }
+
+  Future<void> updateFinancialStatus(String id, String financialStatus) async {
+    final client = _ref.read(supabaseClientProvider);
+    await client.from('orders').update({
+      'financial_status': financialStatus,
     }).eq('id', id);
   }
 
@@ -149,14 +185,13 @@ class OrdersRepository {
       'status': status.toJson(),
     }).eq('id', id);
 
-    if (note != null && note.isNotEmpty) {
-      await client.from('order_history').insert({
-        'order_id': id,
-        'status': status.toJson(),
-        'note': note,
-        'changed_by': client.auth.currentUser!.id,
-      });
-    }
+    // Always log status change
+    await client.from('order_history').insert({
+      'order_id': id,
+      'status': status.toJson(),
+      'note': note,
+      'changed_by': client.auth.currentUser!.id,
+    });
   }
 
   Future<void> assignOrder(String id, String? userId) async {
@@ -164,6 +199,40 @@ class OrdersRepository {
     await client
         .from('orders')
         .update({'assigned_to': userId}).eq('id', id);
+  }
+
+  Future<void> deleteOrder(String id) async {
+    final client = _ref.read(supabaseClientProvider);
+    await client.from('orders').delete().eq('id', id);
+  }
+
+  Future<void> addNote(String orderId, String content) async {
+    final client = _ref.read(supabaseClientProvider);
+    await client.from('order_notes').insert({
+      'order_id': orderId,
+      'content': content,
+      'user_id': client.auth.currentUser!.id,
+    });
+  }
+
+  Future<void> addAttachment(
+      String orderId, String url, String fileName, String fileType) async {
+    final client = _ref.read(supabaseClientProvider);
+    await client.from('order_attachments').insert({
+      'order_id': orderId,
+      'url': url,
+      'file_name': fileName,
+      'file_type': fileType,
+      'uploaded_by': client.auth.currentUser!.id,
+    });
+  }
+
+  Future<void> deleteAttachment(String attachmentId) async {
+    final client = _ref.read(supabaseClientProvider);
+    await client
+        .from('order_attachments')
+        .delete()
+        .eq('id', attachmentId);
   }
 }
 

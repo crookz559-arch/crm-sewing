@@ -1,6 +1,8 @@
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:supabase_flutter/supabase_flutter.dart' show FileOptions;
 import 'package:crm_sewing/l10n/app_localizations.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../shared/models/user_role.dart';
@@ -8,6 +10,7 @@ import '../../../../shared/providers/auth_provider.dart';
 import '../../../../features/users/presentation/users_screen.dart';
 import '../../data/orders_repository.dart';
 import '../../domain/order_model.dart';
+import '../../../clients/data/clients_repository.dart';
 
 class OrderFormScreen extends ConsumerStatefulWidget {
   final String? orderId; // null = создание, non-null = редактирование
@@ -22,6 +25,7 @@ class _OrderFormScreenState extends ConsumerState<OrderFormScreen> {
   final _titleCtrl = TextEditingController();
   final _descCtrl = TextEditingController();
   final _priceCtrl = TextEditingController();
+  final _paidAmountCtrl = TextEditingController();
 
   String? _selectedClientId;
   String? _selectedClientName;
@@ -30,12 +34,15 @@ class _OrderFormScreenState extends ConsumerState<OrderFormScreen> {
   DateTime? _selectedDeadline;
   bool _loading = false;
   bool _initialized = false;
+  // Files to attach after creating a new order
+  final List<PlatformFile> _pendingFiles = [];
 
   @override
   void dispose() {
     _titleCtrl.dispose();
     _descCtrl.dispose();
     _priceCtrl.dispose();
+    _paidAmountCtrl.dispose();
     super.dispose();
   }
 
@@ -45,6 +52,8 @@ class _OrderFormScreenState extends ConsumerState<OrderFormScreen> {
     _titleCtrl.text = order.title;
     _descCtrl.text = order.description ?? '';
     _priceCtrl.text = order.price?.toStringAsFixed(0) ?? '';
+    _paidAmountCtrl.text =
+        order.paidAmount > 0 ? order.paidAmount.toStringAsFixed(0) : '';
     _selectedClientId = order.clientId;
     _selectedClientName = order.clientName;
     _selectedSource = order.source;
@@ -61,6 +70,9 @@ class _OrderFormScreenState extends ConsumerState<OrderFormScreen> {
       final price = _priceCtrl.text.trim().isEmpty
           ? null
           : double.tryParse(_priceCtrl.text.trim());
+      final paidAmount = _paidAmountCtrl.text.trim().isEmpty
+          ? 0.0
+          : (double.tryParse(_paidAmountCtrl.text.trim()) ?? 0);
 
       if (widget.orderId == null) {
         final id = await repo.createOrder(
@@ -72,8 +84,25 @@ class _OrderFormScreenState extends ConsumerState<OrderFormScreen> {
           source: _selectedSource,
           deadline: _selectedDeadline,
           price: price,
+          paidAmount: paidAmount,
           assignedTo: _selectedAssigneeId,
         );
+        // Upload any pending files
+        if (_pendingFiles.isNotEmpty) {
+          final client = ref.read(supabaseClientProvider);
+          for (final f in _pendingFiles) {
+            try {
+              if (f.bytes == null) continue;
+              final ext = f.extension ?? 'bin';
+              final isImage = RegExp(r'jpg|jpeg|png|gif|webp|heic', caseSensitive: false).hasMatch(ext);
+              final path = 'orders/$id/${DateTime.now().millisecondsSinceEpoch}_${f.name}';
+              await client.storage.from('order-files').uploadBinary(path, f.bytes!,
+                  fileOptions: FileOptions(contentType: isImage ? 'image/$ext' : 'application/octet-stream'));
+              final url = client.storage.from('order-files').getPublicUrl(path);
+              await repo.addAttachment(id, url, f.name, isImage ? 'image' : 'file');
+            } catch (_) {}
+          }
+        }
         ref.invalidate(ordersProvider);
         if (mounted) context.pushReplacement('/orders/$id');
       } else {
@@ -87,6 +116,7 @@ class _OrderFormScreenState extends ConsumerState<OrderFormScreen> {
           source: _selectedSource,
           deadline: _selectedDeadline,
           price: price,
+          paidAmount: paidAmount,
           assignedTo: _selectedAssigneeId,
         );
         ref.invalidate(ordersProvider);
@@ -138,14 +168,33 @@ class _OrderFormScreenState extends ConsumerState<OrderFormScreen> {
             const SizedBox(height: 12),
 
             // Клиент
-            _ClientSelector(
-              selectedId: _selectedClientId,
-              selectedName: _selectedClientName,
-              onSelected: (id, name) => setState(() {
-                _selectedClientId = id;
-                _selectedClientName = name;
-              }),
-              l10n: l10n,
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: _ClientSelector(
+                    selectedId: _selectedClientId,
+                    selectedName: _selectedClientName,
+                    onSelected: (id, name) => setState(() {
+                      _selectedClientId = id;
+                      _selectedClientName = name;
+                    }),
+                    l10n: l10n,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Padding(
+                  padding: const EdgeInsets.only(top: 4),
+                  child: IconButton.filled(
+                    onPressed: () => _showQuickClientCreate(context),
+                    icon: const Icon(Icons.person_add_alt_1_outlined, size: 20),
+                    tooltip: 'Новый клиент',
+                    style: IconButton.styleFrom(
+                      minimumSize: const Size(44, 44),
+                    ),
+                  ),
+                ),
+              ],
             ),
             const SizedBox(height: 12),
 
@@ -197,14 +246,25 @@ class _OrderFormScreenState extends ConsumerState<OrderFormScreen> {
             ),
             const SizedBox(height: 12),
 
-            // Цена (только для директора и ГМ)
+            // Финансы (только для директора и ГМ)
             if (role.canViewPrice) ...[
               TextFormField(
                 controller: _priceCtrl,
                 keyboardType: TextInputType.number,
                 decoration: InputDecoration(
-                  labelText: '${l10n.orderPrice} (₽)',
+                  labelText: 'Стоимость заказа (₽)',
                   prefixIcon: const Icon(Icons.attach_money),
+                  helperText: 'Полная стоимость',
+                ),
+              ),
+              const SizedBox(height: 12),
+              TextFormField(
+                controller: _paidAmountCtrl,
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(
+                  labelText: 'Внесена оплата (₽)',
+                  prefixIcon: Icon(Icons.payments_outlined),
+                  helperText: 'Сумма предоплаты',
                 ),
               ),
               const SizedBox(height: 12),
@@ -230,7 +290,43 @@ class _OrderFormScreenState extends ConsumerState<OrderFormScreen> {
                   prefixIcon: const Icon(Icons.notes),
                   alignLabelWithHint: true),
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 12),
+
+            // Файлы / фото (только при создании — при редактировании используем детальный экран)
+            if (!isEdit) ...[
+              const Divider(),
+              Row(
+                children: [
+                  const Icon(Icons.attach_file, size: 18, color: AppColors.grey600),
+                  const SizedBox(width: 8),
+                  const Text('Файлы и фото', style: TextStyle(fontWeight: FontWeight.w600)),
+                  const Spacer(),
+                  OutlinedButton.icon(
+                    onPressed: _pickFile,
+                    icon: const Icon(Icons.add, size: 18),
+                    label: const Text('Добавить'),
+                  ),
+                ],
+              ),
+              if (_pendingFiles.isNotEmpty)
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: _pendingFiles.map((f) {
+                    final ext = f.extension ?? '';
+                    final isImage = RegExp(r'jpg|jpeg|png|gif|webp|heic', caseSensitive: false).hasMatch(ext);
+                    return Chip(
+                      avatar: Icon(isImage ? Icons.image_outlined : Icons.insert_drive_file_outlined, size: 16),
+                      label: Text(f.name, overflow: TextOverflow.ellipsis),
+                      deleteIcon: const Icon(Icons.close, size: 14),
+                      onDeleted: () => setState(() => _pendingFiles.remove(f)),
+                    );
+                  }).toList(),
+                ),
+              const Divider(),
+            ],
+
+            const SizedBox(height: 16),
 
             ElevatedButton(
               onPressed: _loading ? null : _submit,
@@ -246,6 +342,29 @@ class _OrderFormScreenState extends ConsumerState<OrderFormScreen> {
         ),
       ),
     );
+  }
+
+  Future<void> _showQuickClientCreate(BuildContext context) async {
+    final result = await showModalBottomSheet<(String, String)?>(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      builder: (_) => _QuickClientForm(supabaseRef: ref),
+    );
+    if (result != null && mounted) {
+      setState(() {
+        _selectedClientId = result.$1;
+        _selectedClientName = result.$2;
+      });
+      ref.invalidate(_clientsForOrderProvider);
+    }
+  }
+
+  Future<void> _pickFile() async {
+    final result = await FilePicker.platform.pickFiles(withData: true, allowMultiple: true);
+    if (result == null || result.files.isEmpty) return;
+    setState(() => _pendingFiles.addAll(result.files.where((f) => f.bytes != null)));
   }
 
   Future<void> _pickDate(BuildContext context) async {
@@ -359,3 +478,90 @@ class _AssigneeDropdown extends ConsumerWidget {
   }
 }
 
+// ─── Быстрое создание клиента ─────────────────────────────────────────────────
+
+class _QuickClientForm extends ConsumerStatefulWidget {
+  final WidgetRef supabaseRef;
+  const _QuickClientForm({required this.supabaseRef});
+
+  @override
+  ConsumerState<_QuickClientForm> createState() => _QuickClientFormState();
+}
+
+class _QuickClientFormState extends ConsumerState<_QuickClientForm> {
+  final _formKey = GlobalKey<FormState>();
+  final _nameCtrl = TextEditingController();
+  final _phoneCtrl = TextEditingController();
+  bool _loading = false;
+
+  @override
+  void dispose() {
+    _nameCtrl.dispose();
+    _phoneCtrl.dispose();
+    super.dispose();
+  }
+
+  Future<void> _submit() async {
+    if (!_formKey.currentState!.validate()) return;
+    setState(() => _loading = true);
+    try {
+      final repo = ref.read(clientsRepositoryProvider);
+      final id = await repo.createClient(
+        name: _nameCtrl.text.trim(),
+        phone: _phoneCtrl.text.trim().isEmpty ? null : _phoneCtrl.text.trim(),
+      );
+      if (mounted) Navigator.of(context).pop((id, _nameCtrl.text.trim()));
+    } catch (e) {
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('$e')));
+    } finally {
+      if (mounted) setState(() => _loading = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.fromLTRB(16, 20, 16, 16 + MediaQuery.of(context).viewInsets.bottom),
+      child: Form(
+        key: _formKey,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('Новый клиент', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 16),
+            TextFormField(
+              controller: _nameCtrl,
+              decoration: const InputDecoration(
+                labelText: 'Имя клиента *',
+                prefixIcon: Icon(Icons.person_outline),
+              ),
+              autofocus: true,
+              textCapitalization: TextCapitalization.words,
+              validator: (v) => (v == null || v.trim().isEmpty) ? 'Обязательное поле' : null,
+            ),
+            const SizedBox(height: 12),
+            TextFormField(
+              controller: _phoneCtrl,
+              decoration: const InputDecoration(
+                labelText: 'Телефон',
+                prefixIcon: Icon(Icons.phone_outlined),
+              ),
+              keyboardType: TextInputType.phone,
+            ),
+            const SizedBox(height: 20),
+            SizedBox(
+              width: double.infinity,
+              child: FilledButton(
+                onPressed: _loading ? null : _submit,
+                child: _loading
+                    ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2))
+                    : const Text('Создать клиента'),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

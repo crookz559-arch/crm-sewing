@@ -63,6 +63,12 @@ class AppLocalizationsUz extends AppLocalizations {
   String get noData => 'Ma\'lumot yo\'q';
 
   @override
+  String get all => 'Barchasi';
+
+  @override
+  String get onlyMine => 'Mening';
+
+  @override
   String get error => 'Xato';
 
   @override
@@ -198,6 +204,9 @@ class AppLocalizationsUz extends AppLocalizations {
   String get taskNew => 'Yangi vazifa';
 
   @override
+  String get taskTitle => 'Sarlavha';
+
+  @override
   String get taskAssignee => 'Ijrochi';
 
   @override
@@ -222,6 +231,9 @@ class AppLocalizationsUz extends AppLocalizations {
   String get clientNew => 'Yangi mijoz';
 
   @override
+  String get clientEdit => 'Mijozni tahrirlash';
+
+  @override
   String get clientName => 'Ism';
 
   @override
@@ -229,9 +241,6 @@ class AppLocalizationsUz extends AppLocalizations {
 
   @override
   String get clientEmail => 'Email';
-
-  @override
-  String get clientEdit => 'Mijozni tahrirlash';
 
   @override
   String get clientHistory => 'Buyurtmalar tarixi';
@@ -243,7 +252,7 @@ class AppLocalizationsUz extends AppLocalizations {
   String get notes => 'Izohlar';
 
   @override
-  String get notSpecified => "Ko'rsatilmagan";
+  String get notSpecified => 'Ko\'rsatilmagan';
 
   @override
   String get couriersTitle => 'Kurierlar';
@@ -288,7 +297,31 @@ class AppLocalizationsUz extends AppLocalizations {
   String get diarySalary => 'Maosh (rubl)';
 
   @override
+  String get diaryApproved => 'Tasdiqlangan';
+
+  @override
+  String get diaryPending => 'Kutilmoqda';
+
+  @override
+  String get diaryApproveSalary => 'Maoshni tasdiqlash';
+
+  @override
   String get analyticsTitle => 'Tahlil';
+
+  @override
+  String get analyticsRevenue => 'Daromad';
+
+  @override
+  String get analyticsOrders => 'Buyurtmalar';
+
+  @override
+  String get analyticsMonthly => 'Oylik daromad';
+
+  @override
+  String get analyticsStatus => 'Holat bo\'yicha';
+
+  @override
+  String get analyticsTopClients => 'Top mijozlar';
 
   @override
   String get planTitle => 'Reja / Fakt';
@@ -297,10 +330,13 @@ class AppLocalizationsUz extends AppLocalizations {
   String get planMonth => 'Oy';
 
   @override
-  String get planTarget => 'Maqsad (rubl)';
+  String get planTarget => 'Maqsad';
 
   @override
-  String get planFact => 'Fakt (rubl)';
+  String get planFact => 'Fakt';
+
+  @override
+  String get planDiff => 'Farq';
 
   @override
   String get planAhead => 'Oldinda';
@@ -312,6 +348,9 @@ class AppLocalizationsUz extends AppLocalizations {
   String get planOnTrack => 'Rejaga muvofiq';
 
   @override
+  String get planSetTarget => 'Reja belgilash';
+
+  @override
   String get chatTitle => 'Chat';
 
   @override
@@ -319,6 +358,12 @@ class AppLocalizationsUz extends AppLocalizations {
 
   @override
   String get chatSend => 'Yuborish';
+
+  @override
+  String get notifTitle => 'Bildirishnomalar';
+
+  @override
+  String get notifMarkAllRead => 'Hammasini o\'qilgan deb belgilash';
 
   @override
   String get notifOrderReady => 'Buyurtma tayyor';
@@ -371,43 +416,4 @@ class AppLocalizationsUz extends AppLocalizations {
 
   @override
   String get settingsThemeSystem => 'Tizim';
-
-  @override
-  String get all => 'Barchasi';
-
-  @override
-  String get onlyMine => 'Mening';
-
-  @override
-  String get taskTitle => 'Sarlavha';
-
-  @override
-  String get diaryApproved => 'Tasdiqlangan';
-
-  @override
-  String get diaryPending => 'Kutilmoqda';
-
-  @override
-  String get diaryApproveSalary => 'Maoshni tasdiqlash';
-
-  @override
-  String get notifTitle => 'Bildirishnomalar';
-
-  @override
-  String get notifMarkAllRead => "Hammasini o'qilgan deb belgilash";
-
-  @override
-  String get analyticsRevenue => 'Daromad';
-  @override
-  String get analyticsOrders => 'Buyurtmalar';
-  @override
-  String get analyticsMonthly => 'Oylik daromad';
-  @override
-  String get analyticsStatus => "Holat bo'yicha";
-  @override
-  String get analyticsTopClients => 'Top mijozlar';
-  @override
-  String get planDiff => 'Farq';
-  @override
-  String get planSetTarget => 'Reja belgilash';
 }

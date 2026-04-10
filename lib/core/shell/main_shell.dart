@@ -20,10 +20,9 @@ class MainShell extends ConsumerWidget {
     final userData = ref.watch(currentUserProvider);
 
     final items = _navItems(role, l10n);
-    final selectedIndex = _selectedIndex(location, items);
-
     final name = userData.value?['name'] as String? ?? '';
     final avatarUrl = userData.value?['avatar_url'] as String?;
+    final roleName = _roleName(role, l10n);
 
     final isOrdersTab = location == AppRoutes.orders;
     final isTasksTab = location == AppRoutes.tasks;
@@ -56,8 +55,7 @@ class MainShell extends ConsumerWidget {
                 children: [
                   IconButton(
                     icon: const Icon(Icons.notifications_outlined),
-                    onPressed: () =>
-                        context.push(AppRoutes.notifications),
+                    onPressed: () => context.push(AppRoutes.notifications),
                   ),
                   if (count > 0)
                     Positioned(
@@ -69,8 +67,8 @@ class MainShell extends ConsumerWidget {
                           color: Colors.red,
                           shape: BoxShape.circle,
                         ),
-                        constraints: const BoxConstraints(
-                            minWidth: 16, minHeight: 16),
+                        constraints:
+                            const BoxConstraints(minWidth: 16, minHeight: 16),
                         child: Text(
                           count > 99 ? '99+' : '$count',
                           style: const TextStyle(
@@ -85,61 +83,23 @@ class MainShell extends ConsumerWidget {
               );
             },
           ),
-          // Сотрудники — только директор и ГМ
-          if (role.canViewAnalytics)
-            IconButton(
-              icon: const Icon(Icons.group_outlined),
-              tooltip: 'Сотрудники',
-              onPressed: () => context.push(AppRoutes.users),
-            ),
-          // Аватар / профиль
-          GestureDetector(
-            onTap: () => context.push(AppRoutes.profile),
-            child: Padding(
-              padding: const EdgeInsets.only(right: 12),
-              child: CircleAvatar(
-                radius: 16,
-                backgroundColor: _roleColor(role),
-                backgroundImage:
-                    avatarUrl != null ? NetworkImage(avatarUrl) : null,
-                child: avatarUrl == null
-                    ? Text(
-                        name.isNotEmpty ? name[0].toUpperCase() : '?',
-                        style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 13,
-                            fontWeight: FontWeight.bold),
-                      )
-                    : null,
-              ),
-            ),
-          ),
         ],
       ),
-      body: child,
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: selectedIndex < 0 ? 0 : selectedIndex,
-        onDestinationSelected: (i) => context.go(items[i].route),
-        destinations: items
-            .map((e) => NavigationDestination(
-                  icon: Icon(e.icon),
-                  selectedIcon: Icon(e.icon,
-                      color: Theme.of(context).colorScheme.primary),
-                  label: e.label,
-                ))
-            .toList(),
+      drawer: _AppDrawer(
+        items: items,
+        location: location,
+        name: name,
+        roleName: roleName,
+        avatarUrl: avatarUrl,
+        roleColor: _roleColor(role),
+        canViewAnalytics: role.canViewAnalytics,
       ),
+      body: child,
     );
   }
 
-  int _selectedIndex(String location, List<_NavItem> items) {
-    for (var i = 0; i < items.length; i++) {
-      if (location.startsWith(items[i].route)) return i;
-    }
-    return 0;
-  }
-
   String _pageTitle(String location, AppLocalizations l10n) {
+    if (location.startsWith(AppRoutes.dashboard)) return 'Главная';
     if (location.startsWith(AppRoutes.orders)) return l10n.navOrders;
     if (location.startsWith(AppRoutes.tasks)) return l10n.navTasks;
     if (location.startsWith(AppRoutes.clients)) return l10n.navClients;
@@ -154,28 +114,36 @@ class MainShell extends ConsumerWidget {
 
   List<_NavItem> _navItems(UserRole role, AppLocalizations l10n) {
     final items = <_NavItem>[];
-
+    items.add(_NavItem(AppRoutes.dashboard, Icons.home_outlined, 'Главная'));
     items.add(_NavItem(AppRoutes.orders, Icons.assignment_outlined, l10n.navOrders));
     items.add(_NavItem(AppRoutes.tasks, Icons.task_alt, l10n.navTasks));
-
     if (role != UserRole.seamstress) {
       items.add(_NavItem(AppRoutes.clients, Icons.people_outline, l10n.navClients));
       items.add(_NavItem(AppRoutes.couriers, Icons.local_shipping_outlined, l10n.navCouriers));
     }
-
     if (role == UserRole.seamstress) {
       items.add(_NavItem(AppRoutes.diary, Icons.book_outlined, l10n.navDiary));
     }
-
     if (role.canViewAnalytics) {
       items.add(_NavItem(AppRoutes.analytics, Icons.bar_chart, l10n.navAnalytics));
       items.add(_NavItem(AppRoutes.plan, Icons.track_changes, l10n.navPlan));
     }
-
     items.add(_NavItem(AppRoutes.chat, Icons.chat_bubble_outline, l10n.navChat));
     items.add(_NavItem(AppRoutes.settings, Icons.settings_outlined, l10n.settingsTitle));
-
     return items;
+  }
+
+  String _roleName(UserRole role, AppLocalizations l10n) {
+    switch (role) {
+      case UserRole.director:
+        return l10n.roleDirector;
+      case UserRole.headManager:
+        return l10n.roleHeadManager;
+      case UserRole.manager:
+        return l10n.roleManager;
+      case UserRole.seamstress:
+        return l10n.roleSeamstress;
+    }
   }
 
   Color _roleColor(UserRole role) {
@@ -189,6 +157,198 @@ class MainShell extends ConsumerWidget {
       case UserRole.seamstress:
         return AppColors.roleSeamstress;
     }
+  }
+}
+
+// ── Drawer ────────────────────────────────────────────────────────────────────
+
+class _AppDrawer extends ConsumerWidget {
+  final List<_NavItem> items;
+  final String location;
+  final String name;
+  final String roleName;
+  final String? avatarUrl;
+  final Color roleColor;
+  final bool canViewAnalytics;
+
+  const _AppDrawer({
+    required this.items,
+    required this.location,
+    required this.name,
+    required this.roleName,
+    required this.avatarUrl,
+    required this.roleColor,
+    required this.canViewAnalytics,
+  });
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Drawer(
+      child: Column(
+        children: [
+          // ── Header ──────────────────────────────────────────────────
+          Container(
+            width: double.infinity,
+            padding: EdgeInsets.fromLTRB(
+                20, MediaQuery.of(context).padding.top + 20, 20, 20),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  roleColor.withValues(alpha: 0.85),
+                  roleColor.withValues(alpha: 0.55),
+                ],
+              ),
+            ),
+            child: Row(
+              children: [
+                CircleAvatar(
+                  radius: 28,
+                  backgroundColor: Colors.white.withValues(alpha: 0.3),
+                  backgroundImage:
+                      avatarUrl != null ? NetworkImage(avatarUrl!) : null,
+                  child: avatarUrl == null
+                      ? Text(
+                          name.isNotEmpty ? name[0].toUpperCase() : '?',
+                          style: const TextStyle(
+                              fontSize: 22,
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold),
+                        )
+                      : null,
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(name,
+                          style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold)),
+                      const SizedBox(height: 2),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.25),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Text(roleName,
+                            style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 11,
+                                fontWeight: FontWeight.w500)),
+                      ),
+                    ],
+                  ),
+                ),
+                // Profile button
+                IconButton(
+                  icon: const Icon(Icons.manage_accounts_outlined,
+                      color: Colors.white70),
+                  onPressed: () {
+                    Navigator.pop(context);
+                    context.push(AppRoutes.profile);
+                  },
+                ),
+              ],
+            ),
+          ),
+
+          // ── Navigation items ─────────────────────────────────────────
+          Expanded(
+            child: ListView(
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              children: [
+                ...items.map((item) {
+                  final isSelected = location.startsWith(item.route);
+                  return _DrawerTile(
+                    item: item,
+                    isSelected: isSelected,
+                    onTap: () {
+                      Navigator.pop(context);
+                      context.go(item.route);
+                    },
+                  );
+                }),
+              ],
+            ),
+          ),
+
+          // ── Footer ──────────────────────────────────────────────────
+          const Divider(height: 1),
+          if (canViewAnalytics)
+            ListTile(
+              leading: const Icon(Icons.group_outlined),
+              title: const Text('Сотрудники',
+                  style: TextStyle(fontSize: 14)),
+              dense: true,
+              onTap: () {
+                Navigator.pop(context);
+                context.push(AppRoutes.users);
+              },
+            ),
+          ListTile(
+            leading: const Icon(Icons.logout, color: AppColors.statusRework),
+            title: const Text('Выйти',
+                style: TextStyle(fontSize: 14, color: AppColors.statusRework)),
+            dense: true,
+            onTap: () async {
+              Navigator.pop(context);
+              await ref.read(supabaseClientProvider).auth.signOut();
+            },
+          ),
+          SizedBox(height: MediaQuery.of(context).padding.bottom),
+        ],
+      ),
+    );
+  }
+}
+
+class _DrawerTile extends StatelessWidget {
+  final _NavItem item;
+  final bool isSelected;
+  final VoidCallback onTap;
+  const _DrawerTile(
+      {required this.item,
+      required this.isSelected,
+      required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    final primary = Theme.of(context).colorScheme.primary;
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 1),
+      decoration: isSelected
+          ? BoxDecoration(
+              color: primary.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(10),
+            )
+          : null,
+      child: ListTile(
+        leading: Icon(
+          item.icon,
+          size: 22,
+          color: isSelected ? primary : AppColors.grey600,
+        ),
+        title: Text(
+          item.label,
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: isSelected ? FontWeight.w700 : FontWeight.normal,
+            color: isSelected ? primary : null,
+          ),
+        ),
+        dense: true,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        onTap: onTap,
+      ),
+    );
   }
 }
 

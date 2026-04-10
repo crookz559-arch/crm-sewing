@@ -119,6 +119,26 @@ class AnalyticsScreen extends ConsumerWidget {
                 ),
                 const SizedBox(height: 20),
 
+                // Weekly revenue bar chart (scrollable)
+                const Text('Выручка по неделям',
+                    style: TextStyle(
+                        fontSize: 15, fontWeight: FontWeight.bold)),
+                const SizedBox(height: 12),
+                if (data.weeklyRevenue.isEmpty)
+                  const Text('Нет данных',
+                      style: TextStyle(color: AppColors.grey600))
+                else
+                  _ScrollableBarChart(
+                    data: data.weeklyRevenue
+                        .map((w) => _BarData(
+                              label: _fmtWeekLabel(w.weekStart),
+                              value: w.revenue,
+                            ))
+                        .toList(),
+                    color: AppColors.statusReady,
+                  ),
+                const SizedBox(height: 20),
+
                 // Status distribution
                 Text(l10n.analyticsStatus,
                     style: const TextStyle(
@@ -144,7 +164,7 @@ class AnalyticsScreen extends ConsumerWidget {
                             ),
                             const SizedBox(width: 8),
                             Expanded(
-                                child: Text(s.status,
+                                child: Text(_statusRu(s.status),
                                     style: const TextStyle(
                                         fontSize: 13))),
                             Text('${s.count}',
@@ -251,6 +271,21 @@ class AnalyticsScreen extends ConsumerWidget {
     return v.toStringAsFixed(0);
   }
 
+  static String _fmtWeekLabel(DateTime d) =>
+      '${d.day.toString().padLeft(2, '0')}.${d.month.toString().padLeft(2, '0')}';
+
+  static String _statusRu(String s) => switch (s) {
+    'new' => 'Новый',
+    'accepted' => 'Принят в работу',
+    'sewing' => 'В пошиве',
+    'quality' => 'Проверка качества',
+    'ready' => 'Готов',
+    'delivery' => 'Доставка',
+    'closed' => 'Закрыт',
+    'rework' => 'Переделка',
+    _ => s,
+  };
+
   static String _shortMonth(int m) {
     const months = [
       'Янв', 'Фев', 'Мар', 'Апр', 'Май', 'Июн',
@@ -300,6 +335,69 @@ class _BarData {
   final String label;
   final double value;
   const _BarData({required this.label, required this.value});
+}
+
+// Horizontally scrollable bar chart (for weekly data)
+class _ScrollableBarChart extends StatelessWidget {
+  final List<_BarData> data;
+  final Color color;
+  const _ScrollableBarChart({required this.data, required this.color});
+
+  @override
+  Widget build(BuildContext context) {
+    final maxVal = data.fold<double>(0, (m, d) => d.value > m ? d.value : m);
+    const barWidth = 40.0;
+    return SizedBox(
+      height: 160,
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: data
+              .map((d) => SizedBox(
+                    width: barWidth,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 2),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          if (d.value > 0)
+                            Text(
+                              _short(d.value),
+                              style: const TextStyle(
+                                  fontSize: 8, color: AppColors.grey600),
+                            ),
+                          const SizedBox(height: 2),
+                          AnimatedContainer(
+                            duration: const Duration(milliseconds: 600),
+                            height: maxVal > 0
+                                ? (d.value / maxVal * 110).clamp(2, 110)
+                                : 2,
+                            decoration: BoxDecoration(
+                              color: d.value > 0 ? color : AppColors.grey200,
+                              borderRadius: const BorderRadius.vertical(
+                                  top: Radius.circular(4)),
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(d.label,
+                              style: const TextStyle(
+                                  fontSize: 8, color: AppColors.grey600)),
+                        ],
+                      ),
+                    ),
+                  ))
+              .toList(),
+        ),
+      ),
+    );
+  }
+
+  String _short(double v) {
+    if (v >= 1000000) return '${(v / 1000000).toStringAsFixed(1)}M';
+    if (v >= 1000) return '${(v / 1000).toStringAsFixed(0)}К';
+    return v.toStringAsFixed(0);
+  }
 }
 
 class _BarChart extends StatelessWidget {

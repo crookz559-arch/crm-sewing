@@ -20,9 +20,11 @@ import '../../features/diary/presentation/screens/diary_detail_screen.dart';
 import '../../features/diary/presentation/screens/diary_entry_form_screen.dart';
 import '../../features/couriers/presentation/screens/couriers_list_screen.dart';
 import '../../features/chat/presentation/chat_screen.dart';
+import '../../features/chat/presentation/direct_message_screen.dart';
 import '../../features/notifications/presentation/notifications_screen.dart';
 import '../../features/analytics/presentation/analytics_screen.dart';
 import '../../features/plan/presentation/plan_screen.dart';
+import '../../features/dashboard/presentation/dashboard_screen.dart';
 import '../../shared/providers/auth_provider.dart';
 import '../../shared/models/user_role.dart';
 import '../shell/main_shell.dart';
@@ -30,6 +32,7 @@ import '../shell/main_shell.dart';
 class AppRoutes {
   static const splash = '/';
   static const login = '/login';
+  static const dashboard = '/dashboard';
   static const orders = '/orders';
   static const orderDetail = '/orders/:id';
   static const orderCreate = '/orders/create';
@@ -60,7 +63,7 @@ final routerProvider = Provider<GoRouter>((ref) {
 
       if (!isLoggedIn && !isAuthRoute) return AppRoutes.login;
       if (isLoggedIn && state.matchedLocation == AppRoutes.login) {
-        return AppRoutes.orders;
+        return AppRoutes.dashboard;
       }
       return null;
     },
@@ -86,10 +89,10 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: AppRoutes.users,
         builder: (_, __) => const UsersScreen(),
       ),
+      // ── static «/create» must come BEFORE «/:id» ──
       GoRoute(
-        path: '/orders/:id',
-        builder: (_, state) =>
-            OrderDetailScreen(orderId: state.pathParameters['id']!),
+        path: AppRoutes.orderCreate,
+        builder: (_, __) => const OrderFormScreen(),
       ),
       GoRoute(
         path: '/orders/:id/edit',
@@ -97,40 +100,18 @@ final routerProvider = Provider<GoRouter>((ref) {
             OrderFormScreen(orderId: state.pathParameters['id']),
       ),
       GoRoute(
-        path: AppRoutes.orderCreate,
-        builder: (_, __) => const OrderFormScreen(),
+        path: '/orders/:id',
+        builder: (_, state) =>
+            OrderDetailScreen(orderId: state.pathParameters['id']!),
       ),
       GoRoute(
         path: '/clients/create',
         builder: (_, __) => const ClientFormScreen(),
       ),
       GoRoute(
-        path: '/tasks/create',
-        builder: (_, __) => const TaskFormScreen(),
-      ),
-      GoRoute(
-        path: '/tasks/:id',
+        path: '/clients/:id/edit',
         builder: (_, state) =>
-            TaskDetailScreen(taskId: state.pathParameters['id']!),
-      ),
-      GoRoute(
-        path: '/tasks/:id/edit',
-        builder: (_, state) =>
-            TaskFormScreen(taskId: state.pathParameters['id']),
-      ),
-      GoRoute(
-        path: '/diary/create',
-        builder: (_, __) => const DiaryEntryFormScreen(),
-      ),
-      GoRoute(
-        path: '/diary/:id',
-        builder: (_, state) =>
-            DiaryDetailScreen(entryId: state.pathParameters['id']!),
-      ),
-      GoRoute(
-        path: '/diary/:id/edit',
-        builder: (_, state) =>
-            DiaryEntryFormScreen(entryId: state.pathParameters['id']),
+            ClientFormScreen(clientId: state.pathParameters['id']),
       ),
       GoRoute(
         path: '/clients/:id',
@@ -138,13 +119,45 @@ final routerProvider = Provider<GoRouter>((ref) {
             ClientDetailScreen(clientId: state.pathParameters['id']!),
       ),
       GoRoute(
-        path: '/clients/:id/edit',
+        path: '/tasks/create',
+        builder: (_, __) => const TaskFormScreen(),
+      ),
+      GoRoute(
+        path: '/tasks/:id/edit',
         builder: (_, state) =>
-            ClientFormScreen(clientId: state.pathParameters['id']),
+            TaskFormScreen(taskId: state.pathParameters['id']),
+      ),
+      GoRoute(
+        path: '/tasks/:id',
+        builder: (_, state) =>
+            TaskDetailScreen(taskId: state.pathParameters['id']!),
+      ),
+      GoRoute(
+        path: '/diary/create',
+        builder: (_, __) => const DiaryEntryFormScreen(),
+      ),
+      GoRoute(
+        path: '/diary/:id/edit',
+        builder: (_, state) =>
+            DiaryEntryFormScreen(entryId: state.pathParameters['id']),
+      ),
+      GoRoute(
+        path: '/diary/:id',
+        builder: (_, state) =>
+            DiaryDetailScreen(entryId: state.pathParameters['id']!),
+      ),
+      GoRoute(
+        path: '/chat/dm/:userId',
+        builder: (_, state) =>
+            DirectMessageScreen(otherUserId: state.pathParameters['userId']!),
       ),
       ShellRoute(
         builder: (context, state, child) => MainShell(child: child),
         routes: [
+          GoRoute(
+            path: AppRoutes.dashboard,
+            builder: (_, __) => const DashboardScreen(),
+          ),
           GoRoute(
             path: AppRoutes.orders,
             builder: (_, __) => const OrdersListScreen(),

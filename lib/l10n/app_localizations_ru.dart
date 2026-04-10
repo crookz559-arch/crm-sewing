@@ -63,6 +63,12 @@ class AppLocalizationsRu extends AppLocalizations {
   String get noData => 'Данных нет';
 
   @override
+  String get all => 'Все';
+
+  @override
+  String get onlyMine => 'Мои';
+
+  @override
   String get error => 'Ошибка';
 
   @override
@@ -198,6 +204,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get taskNew => 'Новая задача';
 
   @override
+  String get taskTitle => 'Название';
+
+  @override
   String get taskAssignee => 'Исполнитель';
 
   @override
@@ -222,6 +231,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get clientNew => 'Новый клиент';
 
   @override
+  String get clientEdit => 'Редактировать клиента';
+
+  @override
   String get clientName => 'Имя';
 
   @override
@@ -229,9 +241,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get clientEmail => 'Email';
-
-  @override
-  String get clientEdit => 'Редактировать клиента';
 
   @override
   String get clientHistory => 'История заказов';
@@ -288,7 +297,31 @@ class AppLocalizationsRu extends AppLocalizations {
   String get diarySalary => 'ЗП (руб.)';
 
   @override
+  String get diaryApproved => 'Утверждено';
+
+  @override
+  String get diaryPending => 'Ожидает';
+
+  @override
+  String get diaryApproveSalary => 'Утвердить ЗП';
+
+  @override
   String get analyticsTitle => 'Аналитика';
+
+  @override
+  String get analyticsRevenue => 'Выручка';
+
+  @override
+  String get analyticsOrders => 'Заказов';
+
+  @override
+  String get analyticsMonthly => 'Выручка по месяцам';
+
+  @override
+  String get analyticsStatus => 'По статусам';
+
+  @override
+  String get analyticsTopClients => 'Топ клиенты';
 
   @override
   String get planTitle => 'План / Факт';
@@ -297,10 +330,13 @@ class AppLocalizationsRu extends AppLocalizations {
   String get planMonth => 'Месяц';
 
   @override
-  String get planTarget => 'Цель (руб.)';
+  String get planTarget => 'Цель';
 
   @override
-  String get planFact => 'Факт (руб.)';
+  String get planFact => 'Факт';
+
+  @override
+  String get planDiff => 'Разница';
 
   @override
   String get planAhead => 'Опережаем';
@@ -312,6 +348,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get planOnTrack => 'По плану';
 
   @override
+  String get planSetTarget => 'Установить план';
+
+  @override
   String get chatTitle => 'Чат';
 
   @override
@@ -319,6 +358,12 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get chatSend => 'Отправить';
+
+  @override
+  String get notifTitle => 'Уведомления';
+
+  @override
+  String get notifMarkAllRead => 'Прочитать все';
 
   @override
   String get notifOrderReady => 'Заказ готов';
@@ -371,43 +416,4 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get settingsThemeSystem => 'Системная';
-
-  @override
-  String get all => 'Все';
-
-  @override
-  String get onlyMine => 'Мои';
-
-  @override
-  String get taskTitle => 'Название';
-
-  @override
-  String get diaryApproved => 'Утверждено';
-
-  @override
-  String get diaryPending => 'Ожидает';
-
-  @override
-  String get diaryApproveSalary => 'Утвердить ЗП';
-
-  @override
-  String get notifTitle => 'Уведомления';
-
-  @override
-  String get notifMarkAllRead => 'Прочитать все';
-
-  @override
-  String get analyticsRevenue => 'Выручка';
-  @override
-  String get analyticsOrders => 'Заказов';
-  @override
-  String get analyticsMonthly => 'Выручка по месяцам';
-  @override
-  String get analyticsStatus => 'По статусам';
-  @override
-  String get analyticsTopClients => 'Топ клиенты';
-  @override
-  String get planDiff => 'Разница';
-  @override
-  String get planSetTarget => 'Установить план';
 }

@@ -213,7 +213,7 @@ class DiaryDetailScreen extends ConsumerWidget {
         text: entry.salaryAmount?.toStringAsFixed(0) ?? '');
     final ok = await showDialog<bool>(
       context: context,
-      builder: (_) => AlertDialog(
+      builder: (ctx) => AlertDialog(
         title: const Text('Утвердить ЗП'),
         content: TextField(
           controller: ctrl,
@@ -223,10 +223,10 @@ class DiaryDetailScreen extends ConsumerWidget {
         ),
         actions: [
           TextButton(
-              onPressed: () => Navigator.pop(context, false),
+              onPressed: () => Navigator.pop(ctx, false),
               child: const Text('Отмена')),
-          FilledButton(
-              onPressed: () => Navigator.pop(context, true),
+          ElevatedButton(
+              onPressed: () => Navigator.pop(ctx, true),
               child: const Text('Утвердить')),
         ],
       ),
