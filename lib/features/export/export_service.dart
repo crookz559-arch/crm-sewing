@@ -227,7 +227,12 @@ class ExportService {
     final dir = await getTemporaryDirectory();
     final file = File('${dir.path}/$filename');
     await file.writeAsBytes(bytes);
-    await Share.shareXFiles([XFile(file.path)], subject: filename);
+    try {
+      await Share.shareXFiles([XFile(file.path)], subject: filename);
+    } finally {
+      // Clean up temp file to prevent accumulation on repeated exports.
+      try { await file.delete(); } catch (_) {}
+    }
   }
 
   static String _fmt(double v) {

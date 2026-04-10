@@ -123,8 +123,10 @@ class ChatNotifier extends StateNotifier<List<ChatMessage>> {
     String? attachmentType,
     String? attachmentName,
   }) async {
+    final uid = _client.auth.currentUser?.id;
+    if (uid == null) return; // Session expired — ignore silently.
     await _client.from('chat_messages').insert({
-      'user_id': _client.auth.currentUser!.id,
+      'user_id': uid,
       if (content != null && content.isNotEmpty) 'content': content,
       if (replyTo != null) 'reply_to': replyTo,
       if (attachmentUrl != null) 'attachment_url': attachmentUrl,
@@ -264,7 +266,7 @@ class DmNotifier extends StateNotifier<List<DirectMessage>> {
     _subscribe();
   }
 
-  String get _myId => _client.auth.currentUser!.id;
+  String get _myId => _client.auth.currentUser?.id ?? '';
 
   Future<void> _load() async {
     final data = await _client
@@ -345,6 +347,7 @@ class DmNotifier extends StateNotifier<List<DirectMessage>> {
     String? attachmentType,
     String? attachmentName,
   }) async {
+    if (_myId.isEmpty) return; // Session expired.
     await _client.from('direct_messages').insert({
       'from_user_id': _myId,
       'to_user_id': _otherUserId,
@@ -447,22 +450,19 @@ Future<String> uploadChatFile({
   String? mimeType,
 }) async {
   final path = '${DateTime.now().millisecondsSinceEpoch}_$fileName';
-  if (kIsWeb && bytes != null) {
-    await client.storage.from(bucket).uploadBinary(
-      path,
-      bytes,
-      fileOptions: mimeType != null
-          ? FileOptions(contentType: mimeType)
-          : const FileOptions(),
-    );
+  final opts = mimeType != null
+      ? FileOptions(contentType: mimeType)
+      : const FileOptions();
+
+  if (bytes != null) {
+    // Prefer binary upload when bytes are available — works on ALL platforms
+    // (web and mobile). Previously this only ran on kIsWeb, which caused
+    // silent upload failure on Android/iOS when bytes were passed instead of File.
+    await client.storage.from(bucket).uploadBinary(path, bytes, fileOptions: opts);
   } else if (file != null) {
-    await client.storage.from(bucket).upload(
-      path,
-      file,
-      fileOptions: mimeType != null
-          ? FileOptions(contentType: mimeType)
-          : const FileOptions(),
-    );
+    await client.storage.from(bucket).upload(path, file, fileOptions: opts);
+  } else {
+    throw Exception('Нет данных файла для загрузки');
   }
   return client.storage.from(bucket).getPublicUrl(path);
 }

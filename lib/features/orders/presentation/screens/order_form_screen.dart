@@ -26,6 +26,8 @@ class _OrderFormScreenState extends ConsumerState<OrderFormScreen> {
   final _descCtrl = TextEditingController();
   final _priceCtrl = TextEditingController();
   final _paidAmountCtrl = TextEditingController();
+  // Separate controller for the deadline field to avoid recreating it on every build.
+  final _deadlineCtrl = TextEditingController();
 
   String? _selectedClientId;
   String? _selectedClientName;
@@ -43,6 +45,7 @@ class _OrderFormScreenState extends ConsumerState<OrderFormScreen> {
     _descCtrl.dispose();
     _priceCtrl.dispose();
     _paidAmountCtrl.dispose();
+    _deadlineCtrl.dispose();
     super.dispose();
   }
 
@@ -59,6 +62,9 @@ class _OrderFormScreenState extends ConsumerState<OrderFormScreen> {
     _selectedSource = order.source;
     _selectedAssigneeId = order.assignedTo;
     _selectedDeadline = order.deadline;
+    _deadlineCtrl.text = order.deadline != null
+        ? '${order.deadline!.day.toString().padLeft(2, '0')}.${order.deadline!.month.toString().padLeft(2, '0')}.${order.deadline!.year}'
+        : '';
   }
 
   Future<void> _submit() async {
@@ -113,11 +119,15 @@ class _OrderFormScreenState extends ConsumerState<OrderFormScreen> {
               ? null
               : _descCtrl.text.trim(),
           clientId: _selectedClientId,
+          clearClient: _selectedClientId == null,
           source: _selectedSource,
           deadline: _selectedDeadline,
+          clearDeadline: _selectedDeadline == null,
           price: price,
+          clearPrice: price == null,
           paidAmount: paidAmount,
           assignedTo: _selectedAssigneeId,
+          clearAssignee: _selectedAssigneeId == null,
         );
         ref.invalidate(ordersProvider);
         ref.invalidate(orderDetailProvider(widget.orderId!));
@@ -142,9 +152,15 @@ class _OrderFormScreenState extends ConsumerState<OrderFormScreen> {
     final role = ref.watch(currentRoleProvider);
     final isEdit = widget.orderId != null;
 
-    // Инициализируем при редактировании
+    // Инициализируем при редактировании.
+    // Future.microtask предотвращает setState-во-время-build assertion,
+    // когда провайдер уже кеширован и whenData срабатывает синхронно.
     if (isEdit) {
-      ref.watch(orderDetailProvider(widget.orderId!)).whenData(_initFromOrder);
+      ref.watch(orderDetailProvider(widget.orderId!)).whenData((order) {
+        if (!_initialized) {
+          Future.microtask(() { if (mounted) _initFromOrder(order); });
+        }
+      });
     }
 
     return Scaffold(
@@ -220,26 +236,26 @@ class _OrderFormScreenState extends ConsumerState<OrderFormScreen> {
             ),
             const SizedBox(height: 12),
 
-            // Дедлайн
+            // Дедлайн — используем постоянный _deadlineCtrl (не создаём новый в build)
             GestureDetector(
               onTap: () => _pickDate(context),
               child: AbsorbPointer(
                 child: TextFormField(
+                  controller: _deadlineCtrl,
                   decoration: InputDecoration(
                     labelText: l10n.orderDeadline,
                     prefixIcon: const Icon(Icons.calendar_today_outlined),
                     suffixIcon: _selectedDeadline != null
                         ? IconButton(
                             icon: const Icon(Icons.close, size: 18),
-                            onPressed: () =>
-                                setState(() => _selectedDeadline = null),
+                            onPressed: () {
+                              setState(() {
+                                _selectedDeadline = null;
+                                _deadlineCtrl.clear();
+                              });
+                            },
                           )
                         : null,
-                  ),
-                  controller: TextEditingController(
-                    text: _selectedDeadline != null
-                        ? '${_selectedDeadline!.day.toString().padLeft(2, '0')}.${_selectedDeadline!.month.toString().padLeft(2, '0')}.${_selectedDeadline!.year}'
-                        : '',
                   ),
                 ),
               ),
@@ -374,7 +390,13 @@ class _OrderFormScreenState extends ConsumerState<OrderFormScreen> {
       firstDate: DateTime.now(),
       lastDate: DateTime.now().add(const Duration(days: 365)),
     );
-    if (picked != null) setState(() => _selectedDeadline = picked);
+    if (picked != null && mounted) {
+      setState(() {
+        _selectedDeadline = picked;
+        _deadlineCtrl.text =
+            '${picked.day.toString().padLeft(2, '0')}.${picked.month.toString().padLeft(2, '0')}.${picked.year}';
+      });
+    }
   }
 }
 

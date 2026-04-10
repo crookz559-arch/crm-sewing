@@ -130,7 +130,8 @@ class OrdersRepository {
     String? assignedTo,
   }) async {
     final client = _ref.read(supabaseClientProvider);
-    final uid = client.auth.currentUser!.id;
+    final uid = client.auth.currentUser?.id;
+    if (uid == null) throw Exception('Сессия истекла. Войдите заново.');
     final data = await client.from('orders').insert({
       'title': title,
       'description': description,
@@ -157,17 +158,23 @@ class OrdersRepository {
     double? price,
     double? paidAmount,
     String? assignedTo,
+    // Explicit clear flags — avoids silently nulling fields the caller never touched.
+    bool clearClient = false,
+    bool clearDeadline = false,
+    bool clearPrice = false,
+    bool clearAssignee = false,
   }) async {
     final client = _ref.read(supabaseClientProvider);
     await client.from('orders').update({
       if (title != null) 'title': title,
       if (description != null) 'description': description,
-      'client_id': clientId,
+      if (clientId != null || clearClient) 'client_id': clientId,
       if (source != null) 'source': source,
-      'deadline': deadline?.toIso8601String().split('T').first,
-      'price': price,
+      if (deadline != null || clearDeadline)
+        'deadline': deadline?.toIso8601String().split('T').first,
+      if (price != null || clearPrice) 'price': price,
       if (paidAmount != null) 'paid_amount': paidAmount,
-      'assigned_to': assignedTo,
+      if (assignedTo != null || clearAssignee) 'assigned_to': assignedTo,
     }).eq('id', id);
   }
 
@@ -190,7 +197,7 @@ class OrdersRepository {
       'order_id': id,
       'status': status.toJson(),
       'note': note,
-      'changed_by': client.auth.currentUser!.id,
+      'changed_by': client.auth.currentUser?.id ?? '',
     });
   }
 
@@ -203,6 +210,8 @@ class OrdersRepository {
 
   Future<void> deleteOrder(String id) async {
     final client = _ref.read(supabaseClientProvider);
+    // Delete child tasks first to avoid orphaned records if DB has no CASCADE.
+    await client.from('tasks').delete().eq('order_id', id);
     await client.from('orders').delete().eq('id', id);
   }
 
@@ -211,7 +220,7 @@ class OrdersRepository {
     await client.from('order_notes').insert({
       'order_id': orderId,
       'content': content,
-      'user_id': client.auth.currentUser!.id,
+      'user_id': client.auth.currentUser?.id ?? '',
     });
   }
 
@@ -223,7 +232,7 @@ class OrdersRepository {
       'url': url,
       'file_name': fileName,
       'file_type': fileType,
-      'uploaded_by': client.auth.currentUser!.id,
+      'uploaded_by': client.auth.currentUser?.id ?? '',
     });
   }
 

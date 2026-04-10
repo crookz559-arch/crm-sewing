@@ -162,9 +162,17 @@ class _ArchiveOrdersTabState extends ConsumerState<_ArchiveOrdersTab> {
                 ),
                 onDismissed: (_) {
                   setState(() => _dismissed.add(order.id));
-                  ref.read(ordersRepositoryProvider).deleteOrder(order.id).catchError((_) {});
-                  ref.invalidate(calendarDataProvider);
-                  ref.invalidate(priorityOrdersProvider);
+                  ref.read(ordersRepositoryProvider).deleteOrder(order.id).then((_) {
+                    if (!mounted) return;
+                    ref.invalidate(calendarDataProvider);
+                    ref.invalidate(priorityOrdersProvider);
+                  }).catchError((e) {
+                    if (!mounted) return;
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                      content: Text('Ошибка удаления: $e'),
+                      backgroundColor: Colors.red.shade700,
+                    ));
+                  });
                 },
                 child: OrderCard(order: order, showPrice: widget.showPrice, onTap: () => context.push('/orders/${order.id}')),
               );
@@ -298,9 +306,17 @@ class _ActiveOrdersTabState extends ConsumerState<_ActiveOrdersTab> {
                         setState(() => _dismissed.add(order.id));
                         ref.read(ordersRepositoryProvider)
                             .deleteOrder(order.id)
-                            .catchError((_) {});
-                        ref.invalidate(calendarDataProvider);
-                        ref.invalidate(priorityOrdersProvider);
+                            .then((_) {
+                          if (!mounted) return;
+                          ref.invalidate(calendarDataProvider);
+                          ref.invalidate(priorityOrdersProvider);
+                        }).catchError((e) {
+                          if (!mounted) return;
+                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                            content: Text('Ошибка удаления: $e'),
+                            backgroundColor: Colors.red.shade700,
+                          ));
+                        });
                       },
                       child: OrderCard(
                         order: order,

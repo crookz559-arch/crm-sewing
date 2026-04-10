@@ -105,9 +105,17 @@ class _ArchiveTasksTabState extends ConsumerState<_ArchiveTasksTab> {
                       ),
                       onDismissed: (_) {
                         setState(() => _dismissed.add(task.id));
-                        ref.read(tasksRepositoryProvider).deleteTask(task.id).catchError((_) {});
-                        ref.invalidate(calendarDataProvider);
-                        ref.invalidate(todayTasksProvider);
+                        ref.read(tasksRepositoryProvider).deleteTask(task.id).then((_) {
+                          if (!mounted) return;
+                          ref.invalidate(calendarDataProvider);
+                          ref.invalidate(todayTasksProvider);
+                        }).catchError((e) {
+                          if (!mounted) return;
+                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                            content: Text('Ошибка удаления: $e'),
+                            backgroundColor: Colors.red.shade700,
+                          ));
+                        });
                       },
                       child: _TaskTile(task: task, onTap: () => context.push('/tasks/${task.id}')),
                     );
@@ -215,9 +223,17 @@ class _ActiveTasksTabState extends ConsumerState<_ActiveTasksTab> {
                       ),
                     onDismissed: (_) {
                       setState(() => _dismissed.add(task.id));
-                      ref.read(tasksRepositoryProvider).deleteTask(task.id).catchError((_) {});
-                      ref.invalidate(calendarDataProvider);
-                      ref.invalidate(todayTasksProvider);
+                      ref.read(tasksRepositoryProvider).deleteTask(task.id).then((_) {
+                        if (!mounted) return;
+                        ref.invalidate(calendarDataProvider);
+                        ref.invalidate(todayTasksProvider);
+                      }).catchError((e) {
+                        if (!mounted) return;
+                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                          content: Text('Ошибка удаления: $e'),
+                          backgroundColor: Colors.red.shade700,
+                        ));
+                      });
                     },
                     child: _TaskTile(task: task, onTap: () => context.push('/tasks/${task.id}')),
                   );

@@ -52,12 +52,14 @@ final planProvider =
   final to =
       '${month.year}-${month.month.toString().padLeft(2, '0')}-$lastDay';
 
+  // Use end-of-day timestamp so orders created on the last day of the month
+  // (stored as timestamptz, e.g. "2025-01-31T22:45:00Z") are not excluded.
   final ordersData = await client
       .from('orders')
       .select('price')
       .eq('status', 'closed')
       .gte('created_at', from)
-      .lte('created_at', to);
+      .lte('created_at', '${to}T23:59:59.999');
 
   final fact = (ordersData as List).fold<double>(
       0, (sum, o) => sum + ((o['price'] as num?)?.toDouble() ?? 0));
@@ -82,7 +84,8 @@ class PlanRepository {
     String? existingId,
   }) async {
     final client = _ref.read(supabaseClientProvider);
-    final uid = client.auth.currentUser!.id;
+    final uid = client.auth.currentUser?.id;
+    if (uid == null) throw Exception('Сессия истекла. Войдите заново.');
     if (existingId != null) {
       await client
           .from('monthly_plans')

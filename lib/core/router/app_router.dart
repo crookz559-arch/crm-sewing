@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -29,6 +30,22 @@ import '../../shared/providers/auth_provider.dart';
 import '../../shared/models/user_role.dart';
 import '../shell/main_shell.dart';
 
+// Notifier that wakes GoRouter's redirect whenever the auth stream fires.
+// Using this instead of ref.watch means the GoRouter object is created ONCE —
+// token refreshes no longer reset the navigation stack.
+class _GoRouterRefreshNotifier extends ChangeNotifier {
+  _GoRouterRefreshNotifier(Stream<dynamic> stream) {
+    _sub = stream.listen((_) => notifyListeners());
+  }
+  late final StreamSubscription<dynamic> _sub;
+
+  @override
+  void dispose() {
+    _sub.cancel();
+    super.dispose();
+  }
+}
+
 class AppRoutes {
   static const splash = '/';
   static const login = '/login';
@@ -52,19 +69,30 @@ class AppRoutes {
 }
 
 final routerProvider = Provider<GoRouter>((ref) {
-  final authState = ref.watch(authStateProvider);
+  // ref.READ (not watch) — GoRouter is created exactly once per app lifetime.
+  final client = ref.read(supabaseClientProvider);
+
+  final refreshNotifier = _GoRouterRefreshNotifier(
+    client.auth.onAuthStateChange,
+  );
+  ref.onDispose(refreshNotifier.dispose);
 
   return GoRouter(
     initialLocation: AppRoutes.splash,
+    refreshListenable: refreshNotifier,
     redirect: (context, state) {
-      final isLoggedIn = authState.value != null;
-      final isAuthRoute = state.matchedLocation == AppRoutes.login ||
-          state.matchedLocation == AppRoutes.splash;
+      // client.auth.currentUser is synchronous — no AsyncLoading ambiguity.
+      final isLoggedIn = client.auth.currentUser != null;
+      final loc = state.matchedLocation;
+      final isOnSplash = loc == AppRoutes.splash;
+      final isOnLogin = loc == AppRoutes.login;
 
-      if (!isLoggedIn && !isAuthRoute) return AppRoutes.login;
-      if (isLoggedIn && state.matchedLocation == AppRoutes.login) {
-        return AppRoutes.dashboard;
+      // Always redirect away from splash immediately.
+      if (isOnSplash) {
+        return isLoggedIn ? AppRoutes.dashboard : AppRoutes.login;
       }
+      if (!isLoggedIn && !isOnLogin) return AppRoutes.login;
+      if (isLoggedIn && isOnLogin) return AppRoutes.dashboard;
       return null;
     },
     routes: [

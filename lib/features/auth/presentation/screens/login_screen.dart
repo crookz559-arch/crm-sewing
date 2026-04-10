@@ -41,7 +41,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         email: _emailCtrl.text.trim(),
         password: _passCtrl.text,
       );
-      if (mounted) context.go(AppRoutes.orders);
+      // Navigation is handled automatically by GoRouter's refreshListenable.
+      // No manual context.go() needed here — it would race with the router redirect.
     } catch (e) {
       setState(() => _error = AppLocalizations.of(context)!.loginError);
     } finally {

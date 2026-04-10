@@ -69,7 +69,8 @@ final analyticsProvider =
   final year = ref.watch(analyticsYearProvider);
 
   final from = '$year-01-01';
-  final to = '$year-12-31';
+  // Use end-of-day so orders on Dec 31 (timestamptz) are included.
+  final to = '$year-12-31T23:59:59.999';
 
   // Orders in year
   final ordersData = await client
@@ -160,9 +161,18 @@ final analyticsProvider =
   );
 });
 
+/// Returns the correct ISO 8601 week number (1–53).
+/// The original formula returned 0 for some early-January dates and 54 for
+/// some late-December dates, creating phantom week bars in the analytics chart.
 int _isoWeekNumber(DateTime date) {
-  final doy = date.difference(DateTime(date.year, 1, 1)).inDays + 1;
-  return ((doy - date.weekday + 10) / 7).floor();
+  // The ISO week is identified by its Thursday.
+  // Shift date to the Thursday of the same week (Mon=1 … Sun=7).
+  final thursday = date.add(Duration(days: DateTime.thursday - date.weekday));
+  // Find the first Thursday of the year that thursday belongs to.
+  final jan1 = DateTime(thursday.year, 1, 1);
+  final daysToFirstThursday = (DateTime.thursday - jan1.weekday) % 7;
+  final firstThursday = jan1.add(Duration(days: daysToFirstThursday));
+  return (thursday.difference(firstThursday).inDays ~/ 7) + 1;
 }
 
 DateTime _weekStart(DateTime date) {

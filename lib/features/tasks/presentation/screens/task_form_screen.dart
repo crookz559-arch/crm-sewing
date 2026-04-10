@@ -109,7 +109,11 @@ class _TaskFormScreenState extends ConsumerState<TaskFormScreen> {
     final usersAsync = ref.watch(usersListProvider);
 
     if (isEdit) {
-      ref.watch(taskDetailProvider(widget.taskId!)).whenData(_prefill);
+      ref.watch(taskDetailProvider(widget.taskId!)).whenData((task) {
+        if (!_initialized) {
+          Future.microtask(() { if (mounted) _prefill(task); });
+        }
+      });
     }
 
     final users = usersAsync.value ?? [];

@@ -24,30 +24,10 @@ class SplashScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    ref.listen(authStateProvider, (_, next) {
-      next.whenData((user) {
-        if (!context.mounted) return;
-        if (user != null) {
-          context.go(AppRoutes.dashboard);
-        } else {
-          context.go(AppRoutes.login);
-        }
-      });
-    });
-
-    // Handle initial state (stream may not emit if already settled)
-    final authState = ref.watch(authStateProvider);
-    authState.whenData((user) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (!context.mounted) return;
-        if (user != null) {
-          context.go(AppRoutes.dashboard);
-        } else {
-          context.go(AppRoutes.login);
-        }
-      });
-    });
-
+    // Navigation is driven entirely by GoRouter's refreshListenable in app_router.dart.
+    // The redirect function checks client.auth.currentUser synchronously and
+    // redirects away from '/' as soon as auth state is known.
+    // No manual navigation needed here — just show the loading splash.
     return Scaffold(
       backgroundColor: AppColors.primary,
       body: Center(

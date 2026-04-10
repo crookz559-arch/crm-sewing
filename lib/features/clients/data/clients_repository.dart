@@ -34,11 +34,14 @@ final clientsProvider =
 final clientDetailProvider =
     FutureProvider.autoDispose.family<ClientModel, String>((ref, id) async {
   final client = ref.watch(supabaseClientProvider);
+  // maybeSingle() returns null instead of throwing when the record is missing
+  // (e.g. deleted between list load and detail navigation).
   final data = await client
       .from('clients')
       .select()
       .eq('id', id)
-      .single();
+      .maybeSingle();
+  if (data == null) throw Exception('Клиент не найден (возможно, был удалён)');
   return ClientModel.fromJson(data as Map<String, dynamic>);
 });
 
@@ -66,7 +69,8 @@ class ClientsRepository {
     String? notes,
   }) async {
     final client = _ref.read(supabaseClientProvider);
-    final uid = client.auth.currentUser!.id;
+    final uid = client.auth.currentUser?.id;
+    if (uid == null) throw Exception('Сессия истекла. Войдите заново.');
     final data = await client.from('clients').insert({
       'name': name,
       'phone': phone,

@@ -67,7 +67,7 @@ class TasksRepository {
     String? assignedTo,
   }) async {
     final client = _ref.read(supabaseClientProvider);
-    final uid = client.auth.currentUser!.id;
+    final uid = client.auth.currentUser?.id ?? '';
     final data = await client.from('tasks').insert({
       'title': title,
       'description': description,
@@ -145,7 +145,7 @@ extension TasksRepositoryNotes on TasksRepository {
     await client.from('task_notes').insert({
       'task_id': taskId,
       'content': content,
-      'user_id': client.auth.currentUser!.id,
+      'user_id': client.auth.currentUser?.id ?? '',
     });
   }
 
@@ -157,7 +157,7 @@ extension TasksRepositoryNotes on TasksRepository {
       'url': url,
       'file_name': fileName,
       'file_type': fileType,
-      'uploaded_by': client.auth.currentUser!.id,
+      'uploaded_by': client.auth.currentUser?.id ?? '',
     });
   }
 
