@@ -86,7 +86,9 @@ class _TaskFormScreenState extends ConsumerState<TaskFormScreen> {
           description:
               _descCtrl.text.trim().isEmpty ? null : _descCtrl.text.trim(),
           deadline: _deadline,
+          clearDeadline: _deadline == null,
           assignedTo: _assignedToId,
+          clearAssignee: _assignedToId == null,
         );
         ref.invalidate(tasksProvider);
         ref.invalidate(taskDetailProvider(widget.taskId!));

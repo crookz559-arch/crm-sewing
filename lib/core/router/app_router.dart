@@ -33,9 +33,18 @@ import '../shell/main_shell.dart';
 // Notifier that wakes GoRouter's redirect whenever the auth stream fires.
 // Using this instead of ref.watch means the GoRouter object is created ONCE —
 // token refreshes no longer reset the navigation stack.
+//
+// [initialized] stays false until the first auth event is received, which lets
+// the redirect keep the user on the splash screen during cold-start session
+// restoration (avoids a flash of the login screen before the token is loaded).
 class _GoRouterRefreshNotifier extends ChangeNotifier {
+  bool initialized = false;
+
   _GoRouterRefreshNotifier(Stream<dynamic> stream) {
-    _sub = stream.listen((_) => notifyListeners());
+    _sub = stream.listen((_) {
+      initialized = true;
+      notifyListeners();
+    });
   }
   late final StreamSubscription<dynamic> _sub;
 
@@ -81,13 +90,20 @@ final routerProvider = Provider<GoRouter>((ref) {
     initialLocation: AppRoutes.splash,
     refreshListenable: refreshNotifier,
     redirect: (context, state) {
+      // Wait for the first auth-state event before deciding where to navigate.
+      // On cold start, Supabase restores the stored session asynchronously;
+      // currentUser is null until that first event fires. Without this guard
+      // the user would see a flash of the login screen before being bounced
+      // to the dashboard once the token is loaded.
+      if (!refreshNotifier.initialized) return null; // stay on splash
+
       // client.auth.currentUser is synchronous — no AsyncLoading ambiguity.
       final isLoggedIn = client.auth.currentUser != null;
       final loc = state.matchedLocation;
       final isOnSplash = loc == AppRoutes.splash;
       final isOnLogin = loc == AppRoutes.login;
 
-      // Always redirect away from splash immediately.
+      // Redirect away from splash once auth state is known.
       if (isOnSplash) {
         return isLoggedIn ? AppRoutes.dashboard : AppRoutes.login;
       }

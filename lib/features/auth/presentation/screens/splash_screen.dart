@@ -1,26 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
-import '../../../../shared/providers/auth_provider.dart';
-import '../../../../core/router/app_router.dart';
 import '../../../../core/theme/app_colors.dart';
 
 class SplashScreen extends ConsumerWidget {
   const SplashScreen({super.key});
-
-  void _navigate(BuildContext context, WidgetRef ref) {
-    final authState = ref.read(authStateProvider);
-    authState.whenData((user) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (!context.mounted) return;
-        if (user != null) {
-          context.go(AppRoutes.dashboard);
-        } else {
-          context.go(AppRoutes.login);
-        }
-      });
-    });
-  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

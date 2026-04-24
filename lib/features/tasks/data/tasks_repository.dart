@@ -87,14 +87,20 @@ class TasksRepository {
     String? orderId,
     DateTime? deadline,
     String? assignedTo,
+    // Явные флаги очистки — не затираем поля, которые пользователь не трогал.
+    bool clearDeadline = false,
+    bool clearAssignee = false,
   }) async {
     final client = _ref.read(supabaseClientProvider);
     await client.from('tasks').update({
       'title': title,
-      'description': description,
-      'order_id': orderId,
-      'deadline': deadline?.toUtc().toIso8601String(),
-      'assigned_to': assignedTo,
+      if (description != null) 'description': description,
+      if (orderId != null) 'order_id': orderId,
+      if (deadline != null || clearDeadline)
+        'deadline': deadline?.toUtc().toIso8601String(),
+      if (assignedTo != null || clearAssignee) 'assigned_to': assignedTo,
+      // updated_at обновляем вручную на случай если триггер в БД не настроен.
+      'updated_at': DateTime.now().toUtc().toIso8601String(),
     }).eq('id', id);
   }
 

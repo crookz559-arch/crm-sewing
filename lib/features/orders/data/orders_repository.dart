@@ -210,9 +210,13 @@ class OrdersRepository {
 
   Future<void> deleteOrder(String id) async {
     final client = _ref.read(supabaseClientProvider);
-    // Delete child tasks first to avoid orphaned records if DB has no CASCADE.
-    await client.from('tasks').delete().eq('order_id', id);
+    // Удаляем заказ ПЕРВЫМ: если БД имеет ON DELETE CASCADE — задачи удалятся
+    // автоматически. Если нет CASCADE — удаляем задачи вторым шагом.
+    // Прежний порядок (tasks → orders) был опасен: при сетевой ошибке на втором
+    // шаге задачи исчезали, а заказ оставался висеть без задач.
     await client.from('orders').delete().eq('id', id);
+    // Подчищаем осиротевшие задачи (на случай отсутствия CASCADE в БД).
+    await client.from('tasks').delete().eq('order_id', id);
   }
 
   Future<void> addNote(String orderId, String content) async {

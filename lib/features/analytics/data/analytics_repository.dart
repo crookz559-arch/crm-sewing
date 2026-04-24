@@ -68,9 +68,11 @@ final analyticsProvider =
   final client = ref.watch(supabaseClientProvider);
   final year = ref.watch(analyticsYearProvider);
 
-  final from = '$year-01-01';
-  // Use end-of-day so orders on Dec 31 (timestamptz) are included.
-  final to = '$year-12-31T23:59:59.999';
+  final from = '$year-01-01T00:00:00.000Z';
+  // Суффикс Z обязателен: без него Supabase трактует время как локальное
+  // время сервера (UTC), а не UTC клиента — заказы с 21:00 до 23:59 в UTC+3
+  // выпадали бы из выборки.
+  final to = '$year-12-31T23:59:59.999Z';
 
   // Orders in year
   final ordersData = await client
@@ -162,15 +164,16 @@ final analyticsProvider =
 });
 
 /// Returns the correct ISO 8601 week number (1–53).
-/// The original formula returned 0 for some early-January dates and 54 for
-/// some late-December dates, creating phantom week bars in the analytics chart.
 int _isoWeekNumber(DateTime date) {
   // The ISO week is identified by its Thursday.
   // Shift date to the Thursday of the same week (Mon=1 … Sun=7).
   final thursday = date.add(Duration(days: DateTime.thursday - date.weekday));
   // Find the first Thursday of the year that thursday belongs to.
   final jan1 = DateTime(thursday.year, 1, 1);
-  final daysToFirstThursday = (DateTime.thursday - jan1.weekday) % 7;
+  // ВАЖНО: в Dart оператор % возвращает отрицательное число для отрицательного
+  // делимого (например, -1 % 7 == -1, не 6). Добавляем +7 перед % чтобы
+  // гарантировать неотрицательный результат для jan1.weekday > 4 (пт, сб, вс).
+  final daysToFirstThursday = (DateTime.thursday - jan1.weekday + 7) % 7;
   final firstThursday = jan1.add(Duration(days: daysToFirstThursday));
   return (thursday.difference(firstThursday).inDays ~/ 7) + 1;
 }

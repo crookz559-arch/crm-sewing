@@ -45,21 +45,20 @@ final planProvider =
       (planData?['target_revenue'] as num?)?.toDouble() ?? 0;
   final planId = planData?['id'] as String?;
 
-  // Get actual revenue for the month
-  final from =
-      '${month.year}-${month.month.toString().padLeft(2, '0')}-01';
+  // Get actual revenue for the month.
+  // Суффикс Z обязателен: без него Supabase трактует строку как локальное
+  // время сервера — заказы последнего дня месяца в вечернее время выпадали.
+  final mm = month.month.toString().padLeft(2, '0');
   final lastDay = DateTime(month.year, month.month + 1, 0).day;
-  final to =
-      '${month.year}-${month.month.toString().padLeft(2, '0')}-$lastDay';
+  final from = '${month.year}-$mm-01T00:00:00.000Z';
+  final to   = '${month.year}-$mm-${lastDay}T23:59:59.999Z';
 
-  // Use end-of-day timestamp so orders created on the last day of the month
-  // (stored as timestamptz, e.g. "2025-01-31T22:45:00Z") are not excluded.
   final ordersData = await client
       .from('orders')
       .select('price')
       .eq('status', 'closed')
       .gte('created_at', from)
-      .lte('created_at', '${to}T23:59:59.999');
+      .lte('created_at', to);
 
   final fact = (ordersData as List).fold<double>(
       0, (sum, o) => sum + ((o['price'] as num?)?.toDouble() ?? 0));

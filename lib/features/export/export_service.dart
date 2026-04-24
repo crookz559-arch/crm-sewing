@@ -1,6 +1,3 @@
-import 'dart:io';
-import 'package:flutter/foundation.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -217,22 +214,12 @@ class ExportService {
 
   static Future<void> _shareFile(
       Uint8List bytes, String filename, String mimeType) async {
-    if (kIsWeb) {
-      // Web: use share_plus with XFile
-      final xFile = XFile.fromData(bytes,
-          name: filename, mimeType: mimeType);
-      await Share.shareXFiles([xFile], subject: filename);
-      return;
-    }
-    final dir = await getTemporaryDirectory();
-    final file = File('${dir.path}/$filename');
-    await file.writeAsBytes(bytes);
-    try {
-      await Share.shareXFiles([XFile(file.path)], subject: filename);
-    } finally {
-      // Clean up temp file to prevent accumulation on repeated exports.
-      try { await file.delete(); } catch (_) {}
-    }
+    // XFile.fromData works on all platforms (web, iOS, Android).
+    // share_plus manages any required temp file internally, so we don't
+    // need to write or delete our own temp file — which eliminates the
+    // iOS race where file.delete() ran before the Share Sheet finished reading.
+    final xFile = XFile.fromData(bytes, name: filename, mimeType: mimeType);
+    await Share.shareXFiles([xFile], subject: filename);
   }
 
   static String _fmt(double v) {
